@@ -482,7 +482,7 @@ function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+
 
 /* ---------- 保存と読み込み ---------- */
 let S,P={},W=[],WMAP={};
-function defState(){return {v:1,tab:'card',rootTab:'r',prog:{},words:[],parts:{},set:{newPerDay:10,qLearned:false,badge:false},day:{date:'',newDone:0},sess:null,quiz:null,draft:null,newDraft:null,lastBackup:0,firstUse:Date.now()}}
+function defState(){return {v:1,tab:'card',rootTab:'r',prog:{},words:[],parts:{},set:{newPerDay:10,qLearned:false,badge:false},day:{date:'',newDone:0},sess:null,quiz:null,draft:null,newDraft:null,push:null,lastBackup:0,firstUse:Date.now()}}
 function blankDraft(){return {id:null,w:'',pos:'動',m:'',split:'',touched:false,sel:{},g:'',ex:'',exj:''}}
 function validPart(v){return v&&typeof v==='object'&&['p','r','s'].includes(v.type)&&Array.isArray(v.forms)&&v.forms.length&&v.forms.every(f=>typeof f==='string'&&f)&&typeof v.m==='string'}
 function validWord(w){return w&&typeof w==='object'&&typeof w.id==='string'&&w.id.startsWith('c_')&&typeof w.w==='string'&&w.w&&typeof w.m==='string'&&Array.isArray(w.segs)&&w.segs.length>0&&w.segs.every(s=>s&&typeof s.id==='string'&&typeof s.t==='string'&&s.t)}
@@ -525,6 +525,7 @@ function sanitize(o){
   if(s.newDraft&&s.newDraft.id)s.newDraft=null;
   if(Number.isFinite(o.lastBackup))s.lastBackup=o.lastBackup;
   if(Number.isFinite(o.firstUse))s.firstUse=o.firstUse;
+  if(o.push&&typeof o.push==='object'&&typeof o.push.id==='string')s.push={id:o.push.id,sent:typeof o.push.sent==='string'?o.push.sent:null};
   return s;
 }
 function load(){let raw=null;try{raw=JSON.parse(localStorage.getItem(KEY))}catch(e){}S=sanitize(raw)||defState()}
@@ -573,7 +574,7 @@ function render(){
   $('#ttl').textContent=TITLES[S.tab];
   const c=counts();$('#tsub').textContent=`覚えた ${c.ok} / ${W.length}語`;
   ({card:renderCard,roots:renderRoots,quiz:renderQuiz,list:renderList,set:renderSet})[S.tab]();
-  updateBadge();
+  afterChange();
 }
 function toTop(){$('#main').scrollTop=0}
 
@@ -920,14 +921,15 @@ function renderSet(){
   <p class="ghead" style="margin-top:8px">1日に出す新しい単語</p>
   <div class="group" style="padding:8px"><div class="opts">${[5,10,15,20].map(n=>`<button data-act="newPer" data-v="${n}" class="${n===S.set.newPerDay?'on':''}">${n}語</button>`).join('')}</div></div>
   <p class="gfoot">覚えた単語は、1日後・3日後・7日後・14日後・30日後・60日後と、間をあけて復習に出てきます。「まだ」にした単語はその日のうちにもう一度出ます。</p>
-  <p class="ghead">毎晩9時のお知らせ</p>
+  <p class="ghead">復習の通知（夜9時）</p>
   <div class="group">
     <div class="cell"><span class="grow">今日の残りの復習</span><span class="sub">${dueBy(Date.now())}語</span></div>
     <div class="cell"><span class="grow">明日の復習（今日の残りを含む）</span><span class="sub">${dueBy(startOfDay()+2*DAY-1)}語</span></div>
-    <button class="cell link" data-act="notifyHelp"><span class="grow">ショートカットで通知を設定する</span>${ICON.chev}</button>
+    <label class="cell"><span class="grow">復習がある日に通知する</span><input type="checkbox" class="switch" id="pushSw" ${S.push?'checked':''}></label>
+    ${S.push?'<button class="cell link" data-act="pushTest">テスト通知を送る</button>':''}
     <label class="cell"><span class="grow">アイコンに復習の数を出す</span><input type="checkbox" class="switch" id="badgeSw" ${S.set.badge?'checked':''}></label>
   </div>
-  <p class="gfoot">通知は iPhone の「ショートカット」アプリから毎晩9時に出します。アイコンの数字は、このアプリを開いたときと閉じたときに新しくなります。</p>
+  <p class="gfoot">${pushNote()}</p>
   <p class="ghead">学習の記録</p>
   <div class="group">
     <div class="cell"><span class="grow">覚えた</span><span class="sub">${c.ok}語</span></div>
@@ -946,6 +948,7 @@ function renderSet(){
   <p class="gfoot">追加した単語は消えません。</p>`;
   $('#restoreFile').onchange=restoreFrom;
   $('#badgeSw').onchange=e=>toggleBadge(e.target.checked,e.target);
+  $('#pushSw').onchange=e=>togglePush(e.target.checked,e.target);
 }
 
 /* ---------- 毎晩のお知らせ・アイコンの数字 ---------- */
@@ -963,21 +966,87 @@ async function toggleBadge(on,el){
   if(p!=='granted'){el.checked=false;toast('通知が許可されていないため、数字を出せません。iPhone の「設定」→「通知」から許可できます');return}
   S.set.badge=true;save();updateBadge();toast('アイコンに復習の数を出します');
 }
-const NOTIFY_TEXT='単語帳の復習の時間です';
-function openNotifyHelp(){
-  const steps=[
-    'iPhone の「ショートカット」アプリを開き、下の「オートメーション」をタップします。',
-    '右上の「＋」（はじめてのときは「新規オートメーション」）をタップし、「時刻」を選びます。',
-    '時刻を「21:00」、繰り返しを「毎日」にします。「すぐに実行」を選んで「次へ」をタップします。',
-    '「新規の空のオートメーション」をタップし、「アクションを追加」で「通知を表示」を探して入れます。',
-    `通知の文を「${NOTIFY_TEXT}」に書き換えて「完了」をタップします。`
-  ];
-  openSheet(`${sheetHead('<button class="x" data-act="close">閉じる</button>','通知の設定','')}
-  <p class="gfoot" style="margin:6px 4px 0">一度設定すると、毎晩9時に iPhone に通知が届きます。</p>
-  <ol class="group steps">${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
-  <div class="group mt"><button class="cell link" data-act="copyNotify">通知の文をコピー</button></div>
-  <p class="gfoot">通知をタップすると「ショートカット」アプリが開きます。単語帳は、ホーム画面のアイコンから開いてください。Safari で開くと、学習の記録が別になります。</p>
-  <p class="gfoot">画面の名前は、iOS の版によって少し違うことがあります。</p>`);
+/* ---------- 復習の通知（サーバー：push-server/） ----------
+   サーバーに送るのは、通知の宛先と「次に復習がある日付」だけ。
+   語数は、通知が届いたときに sw.js（push-sw.js）が IndexedDB の予定から数える */
+const PUSH_URL='https://parts-wordbook-push.tatsushik0720-maker.workers.dev';
+const VAPID_PUBLIC='BBwz4D_ctPOTMqAHHvIMyybeSYJGXKPiptZXKcDkpmQufACbjBK-9U1ZyHph_36OY-_5bTMwvWj3xIw0yK_ptA8';
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}};
+function pushNote(){
+  if(S.push)return '復習がある日の夜9時に通知が届きます。通知を押すと単語帳が開きます。サーバーに送るのは、次に復習がある日付だけです。ショートカットで作ったオートメーションは消してください（通知が2回届くため）。アイコンの数字は、アプリを開いたとき・閉じたとき・通知が届いたときに新しくなります。';
+  if(!isStandalone())return '通知は、ホーム画面のアイコンから開いたときに設定できます。';
+  return '復習がある日の夜9時に通知が届きます。サーバーに送るのは、次に復習がある日付だけです。単語や学習の記録は送りません。';
+}
+function ymd(t){const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+/* 次に復習がある日。やり残しがあれば今日 */
+function nextDueDate(){
+  let m=Infinity;for(const w of W){const p=S.prog[w.id];if(p&&p.d<m)m=p.d}
+  return m===Infinity?null:ymd(Math.max(m,Date.now()));
+}
+/* 通知が届いたときに語数を数えられるよう、復習の予定を IndexedDB にも書く */
+let lastDueKey='';
+function syncDue(){
+  const due=W.map(w=>S.prog[w.id]).filter(Boolean).map(p=>p.d);
+  const key=due.join(',');if(key===lastDueKey)return;lastDueKey=key;
+  try{
+    const r=indexedDB.open('parts-wordbook',1);
+    r.onupgradeneeded=()=>r.result.createObjectStore('kv');
+    r.onsuccess=()=>{const db=r.result;try{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(due,'due');tx.oncomplete=tx.onerror=()=>db.close()}catch(e){db.close()}};
+  }catch(e){}
+}
+async function pushPost(path,body,keepalive){
+  const r=await fetch(PUSH_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:!!keepalive});
+  let j={};try{j=await r.json()}catch(e){}
+  return {status:r.status,ok:r.ok,j};
+}
+/* 次に復習がある日が変わったときだけサーバーに知らせる */
+let pushBusy=false;
+async function syncSchedule(keepalive){
+  if(!S.push||pushBusy)return;
+  const next=nextDueDate();if(next===S.push.sent)return;
+  pushBusy=true;
+  try{
+    const r=await pushPost('/schedule',{id:S.push.id,next},keepalive);
+    if(r.ok){S.push.sent=next;save()}
+    else if(r.status===404){S.push=null;save();if(S.tab==='set')renderSet()}
+  }catch(e){}
+  pushBusy=false;
+}
+function afterChange(keepalive){updateBadge();syncDue();syncSchedule(keepalive)}
+function b64uToBytes(s){const b=atob(s.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((s.length+3)%4));return Uint8Array.from(b,c=>c.charCodeAt(0))}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))])}
+async function togglePush(on,el){
+  if(!on){
+    el.disabled=true;
+    try{const reg=await withTimeout(navigator.serviceWorker.ready,5000);const sub=await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(e){}
+    try{if(S.push)await pushPost('/unsubscribe',{id:S.push.id})}catch(e){}
+    S.push=null;save();renderSet();toast('通知を止めました');return;
+  }
+  if(!isStandalone()||!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){el.checked=false;toast('通知は、ホーム画面のアイコンから開いたときに設定できます');return}
+  /* 許可はタップの直後に聞く（間に待ちが入ると、iPhone が許可の画面を出さない） */
+  let perm='denied';try{perm=await Notification.requestPermission()}catch(e){}
+  if(perm!=='granted'){el.checked=false;toast('通知が許可されていません。iPhone の「設定」→「通知」から許可できます');return}
+  el.disabled=true;
+  try{
+    const reg=await withTimeout(navigator.serviceWorker.ready,10000);
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uToBytes(VAPID_PUBLIC)});
+    const next=nextDueDate();
+    const r=await pushPost('/subscribe',{sub:sub.toJSON(),next,id:S.push?S.push.id:null});
+    if(!r.ok||!r.j.id)throw new Error('subscribe '+r.status);
+    S.push={id:r.j.id,sent:next};save();lastDueKey='';syncDue();renderSet();
+    toast('復習がある日の夜9時に通知します');
+  }catch(e){el.checked=false;el.disabled=false;toast('通知の設定に失敗しました。通信を確かめて、もう一度試してください')}
+}
+async function pushTest(){
+  if(!S.push)return;
+  try{
+    const r=await pushPost('/test',{id:S.push.id});
+    if(r.ok)toast('テスト通知を送りました。数秒で届きます');
+    else if(r.status===429)toast('1分ほど待ってから、もう一度試してください');
+    else if(r.status===404){S.push=null;save();renderSet();toast('通知の設定が切れていました。もう一度オンにしてください')}
+    else toast('送れませんでした（'+r.status+'）');
+  }catch(e){toast('送れませんでした。通信を確かめてください')}
 }
 async function doBackup(){
   const data=JSON.stringify({app:'parts-wordbook',v:1,at:Date.now(),state:{...S,draft:null,newDraft:null}});
@@ -998,6 +1067,8 @@ function restoreFrom(e){
     if(!s){toast('このファイルは単語帳のバックアップではないようです');return}
     actionSheet('今のデータを、バックアップの内容に置き換えます。','置き換える',()=>{
       s.lastBackup=Math.max(s.lastBackup||0,o.at||0);s.tab='set';
+      /* 通知の設定はこの端末のものを残す（バックアップの中の設定は、別の端末のことがある） */
+      s.push=S.push;if(s.push)s.push.sent='';
       S=s;rebuild();flipped=false;save();render();toast('バックアップから戻しました');
     });
   };
@@ -1059,8 +1130,7 @@ const ACT={
   backup:()=>doBackup(),
   restore:()=>$('#restoreFile')?$('#restoreFile').click():(S.tab='set',render(),$('#restoreFile').click()),
   reset:()=>resetProgress(),
-  notifyHelp:()=>openNotifyHelp(),
-  copyNotify:()=>{try{navigator.clipboard.writeText(NOTIFY_TEXT).then(()=>toast('コピーしました'),()=>toast(`「${NOTIFY_TEXT}」と入れてください`))}catch(e){toast(`「${NOTIFY_TEXT}」と入れてください`)}},
+  pushTest:()=>pushTest(),
   actOk:()=>{const f=actOk;closeActs();if(f)f()},
   actCancel:()=>closeActs(),
   undo:()=>{const f=toastUndo;toastUndo=null;$('#toast').hidden=true;if(f)f()},
@@ -1075,8 +1145,8 @@ try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}
 render();
 /* 閉じたまま日をまたいでも、開き直したときにその日の分を作り直す。閉じるときはアイコンの数字を新しくする */
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'){if($('#sheetWrap').hidden&&$('#actWrap').hidden)render();else updateBadge()}
-  else updateBadge();
+  if(document.visibilityState==='visible'){if($('#sheetWrap').hidden&&$('#actWrap').hidden)render();else afterChange()}
+  else afterChange(true);
 });
 </script>
 
