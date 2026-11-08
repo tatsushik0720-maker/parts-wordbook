@@ -202,7 +202,7 @@ body{position:absolute;top:0;right:0;bottom:0;left:0;height:auto;padding-top:env
   html{position:static;height:100lvh;overflow:visible}
   body{position:static;height:100lvh;overflow:visible}
   #sheetWrap,#actWrap{bottom:auto;height:100lvh}
-  .top{padding-top:10px}
+  .top{padding-top:34px}
 }
 </style>
 
@@ -1078,6 +1078,26 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'){if($('#sheetWrap').hidden&&$('#actWrap').hidden)render();else updateBadge()}
   else updateBadge();
 });
+</script>
+
+<style>html,body{overscroll-behavior:none}</style>
+<script>
+(function () {
+  function canScroll(el) {
+    for (; el && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      var s = getComputedStyle(el);
+      if (/(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 1) return true;
+      if (/(auto|scroll)/.test(s.overflowX) && el.scrollWidth > el.clientWidth + 1) return true;
+    }
+    return false;
+  }
+  document.addEventListener('touchmove', function (e) {
+    if (e.touches.length > 1) return;
+    var t = e.target;
+    if (t.closest && t.closest('input,textarea,select,[contenteditable]')) return;
+    if (!canScroll(t)) e.preventDefault();
+  }, { passive: false });
+})();
 </script>
 
 <script>
