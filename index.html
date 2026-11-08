@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="パーツで覚える英単語">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}*{touch-action:pan-x pan-y}</style>
+<script>
+['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+</script>
+<title>パーツで覚える英単語</title>
+<style>
+/* Apple の Human Interface Guidelines に合わせた色。文字の色の差は 4.5:1 以上 */
+:root{--bg:#f2f2f7;--group:#fff;--bar:#f9f9f9;--ink:#000;--sub:#636366;--tabgray:#6e6e73;--sep:rgba(60,60,67,.29);--fill:rgba(118,118,128,.12);--press:rgba(60,60,67,.12);--accent:#0058b8;--accent-fill:#0058b8;--ok:#1e7a35;--ng:#c4001a;--pre:#8a35c0;--root:#ad4a00;--suf:#00727f;--pre-bg:rgba(175,82,222,.13);--root-bg:rgba(255,149,0,.15);--suf-bg:rgba(48,176,199,.15);--scrim:rgba(0,0,0,.4);--toast:rgba(30,30,32,.94)}
+@media (prefers-color-scheme:dark){
+:root{--bg:#000;--group:#1c1c1e;--bar:#161617;--ink:#fff;--sub:#98989f;--tabgray:#8e8e93;--sep:rgba(84,84,88,.65);--fill:rgba(118,118,128,.24);--press:rgba(255,255,255,.12);--accent:#5aabff;--accent-fill:#0a5fd6;--ok:#30d158;--ng:#ff6961;--pre:#d993ff;--root:#ff9f0a;--suf:#40c8e0;--pre-bg:rgba(191,90,242,.2);--root-bg:rgba(255,159,10,.18);--suf-bg:rgba(64,200,224,.18);--scrim:rgba(0,0,0,.6);--toast:rgba(58,58,60,.96)}
+.sheet,.acts{--group:#2c2c2e;--bg:#1c1c1e}}
+[hidden]{display:none!important}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:17px;font:-apple-system-body}
+html,body{height:100%;overflow:hidden;margin:0}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;font-size:1rem;line-height:1.4;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-user-select:none;user-select:none;touch-action:manipulation;padding:0;text-align:inherit}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:6px 16px 6px;background:var(--bg)}
+.top h1{font-size:min(2rem,40px);line-height:1.2;margin:0;font-weight:700;letter-spacing:.01em}
+.tsub{font-size:min(.765rem,18px);color:var(--sub);white-space:nowrap}
+main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:4px 16px 28px}
+.tabs{display:flex;background:var(--bar);box-shadow:0 -.5px 0 var(--sep);position:relative;z-index:2}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-height:50px;padding:5px 0 3px;font-size:11px;font-weight:500;color:var(--tabgray);text-align:center}
+.tabs svg{width:27px;height:27px;fill:currentColor}
+.tabs button.on{color:var(--accent)}
+.ic{width:22px;height:22px;fill:currentColor}
+.sub{color:var(--sub)}.small{font-size:.765rem}
+.mt{margin-top:12px}
+.grow{flex:1;min-width:0}
+.row2{display:flex;gap:10px}.row2>*{flex:1;min-width:0}
+/* パーツの色（操作の青・正解の緑・不正解の赤とは別の色にする） */
+.seg.p{color:var(--pre)}.seg.r{color:var(--root)}.seg.s{color:var(--suf)}
+.chip{display:inline-block;padding:2px 9px;border-radius:7px;font-weight:600;white-space:nowrap}
+.chip.p{background:var(--pre-bg);color:var(--pre)}.chip.r{background:var(--root-bg);color:var(--root)}.chip.s{background:var(--suf-bg);color:var(--suf)}
+.wb{display:inline-flex;flex-wrap:wrap;justify-content:center;max-width:100%}
+.seg{overflow-wrap:anywhere;min-width:0}
+.word-big.xlong{font-size:min(1.3rem,32px)}
+.qchip{font-size:min(1.76rem,30px);padding:4px 14px;white-space:normal;max-width:100%}
+.qchip.long{font-size:min(1.3rem,22px)}
+.word-big{text-align:center;font-weight:700;font-size:min(2.35rem,52px);line-height:1.25;margin:20px 0 8px;letter-spacing:.005em}
+.word-big.long{font-size:min(1.76rem,42px)}
+.word-big .seg{border-bottom:3px solid currentColor;margin:0 3px;padding:0 1px}
+.mini{font-weight:600;font-size:1rem}
+.mini .seg.focus{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.pos{text-align:center;color:var(--sub);font-size:.882rem;display:flex;justify-content:center;align-items:center;gap:6px}
+.say{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+.say:active{background:var(--press)}
+.legend{display:flex;gap:14px;justify-content:center;font-size:.765rem;color:var(--sub);margin:10px 0 8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* カード */
+.progress{height:4px;background:var(--fill);border-radius:2px;overflow:hidden;margin-top:6px}
+.progress div{height:100%;background:var(--accent);border-radius:2px;transition:width .3s cubic-bezier(.2,.8,.2,1)}
+.cardbox{background:var(--group);border-radius:22px;padding:16px 18px 22px;min-height:320px;margin-top:4px;cursor:pointer}
+.cmeta{display:flex;justify-content:space-between;align-items:center;font-size:.765rem;color:var(--sub)}
+.tag{font-size:.765rem;padding:2px 9px;border-radius:999px;background:var(--fill);color:var(--sub);font-weight:600}
+.tag.new{color:var(--accent)}.tag.ng{color:var(--ng)}.tag.ok{color:var(--ok)}
+.hint{text-align:center;color:var(--sub);font-size:.882rem;margin-top:44px}
+.reveal{animation:reveal .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mean{text-align:center;font-size:1.176rem;font-weight:700;margin:16px 0 12px}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;box-shadow:inset 0 .5px 0 var(--sep);position:relative}
+.plist li .chip{min-width:64px;text-align:center}
+.plist b{display:block;font-weight:600}.plist small{display:block;color:var(--sub);font-size:.765rem}
+.origin{background:var(--fill);border-radius:12px;padding:10px 12px;margin:12px 0 0;font-size:.882rem}
+.ex{margin-top:12px;padding-left:12px;border-left:3px solid var(--fill)}
+.ex p{margin:0 0 4px}.ex p+p{color:var(--sub);font-size:.882rem}
+mark{background:transparent;color:var(--accent);font-weight:700}
+.answer{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:sticky;bottom:-28px;padding:12px 0 28px;background:var(--bg)}
+/* ボタン：塗りは1画面に1〜2個。ほかは灰色の地か文字だけ */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:50px;padding:12px 16px;border-radius:999px;font-weight:600;font-size:1rem;background:var(--fill);color:var(--accent);text-align:center;transition:opacity .15s}
+.btn:active{opacity:.6}
+.btn.primary{background:var(--accent-fill);color:#fff}
+.answer .btn+.btn,.row2 .btn+.btn{margin-top:0}
+.btn.plain{background:none}
+.btn.danger{color:var(--ng)}
+.btn.small{display:inline-flex;width:auto;min-height:44px;padding:8px 16px;white-space:nowrap;flex:none}
+.btn+.btn{margin-top:10px}
+.done{background:var(--group);border-radius:22px;padding:24px 18px 18px;text-align:center;margin-top:8px}
+.done h2{margin:0 0 6px;font-size:1.294rem;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.stats div{background:var(--fill);border-radius:12px;padding:10px 4px}
+.stats b{display:block;font-size:1.294rem;font-weight:700}.stats span{font-size:.765rem;color:var(--sub)}
+.banner{display:flex;align-items:center;gap:10px;background:var(--group);border-radius:12px;padding:4px 4px 4px 14px;font-size:.882rem;margin:4px 0 10px}
+.banner button{color:var(--accent);font-weight:600;white-space:nowrap;min-height:44px;padding:0 12px}
+/* 分割ボタン */
+.segc{display:flex;background:var(--fill);border-radius:999px;padding:2px;margin-top:4px}
+.segc button{flex:1;min-height:44px;border-radius:999px;font-size:.882rem;font-weight:500;text-align:center;transition:background .2s}
+.segc button.on{background:var(--group);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+@media (prefers-color-scheme:dark){.segc button.on{background:#636366}}
+/* 一覧（iOS の設定画面と同じ角丸のまとまり） */
+.group{background:var(--group);border-radius:12px;margin:0;padding:0;list-style:none;overflow:hidden}
+.ghead{font-size:.765rem;color:var(--sub);margin:22px 16px 6px}
+.gfoot{font-size:.765rem;color:var(--sub);margin:6px 16px 0}
+.cell{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 16px;position:relative;width:100%;font-size:1rem}
+.cell+.cell::before,.wl li+li::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--sep)}
+button.cell:active,li[data-act]:active{background:var(--press)}
+.cell.link{color:var(--accent)}.cell.red{color:var(--ng)}
+.chev{width:9px;height:14px;flex:none;color:var(--tabgray);opacity:.7}
+.wl{list-style:none;margin:0;padding:0}
+.wl li{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 16px;position:relative;cursor:pointer}
+.wl .wm{flex:1;text-align:right;color:var(--sub);font-size:.882rem;min-width:0}
+.st{flex:none;width:2.6em;text-align:right;font-size:.765rem;font-weight:600}
+.st.ok{color:var(--ok)}.st.ng{color:var(--ng)}
+.psec{scroll-margin-top:8px}
+.phead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-start;margin:22px 4px 8px}
+.phead .chip{white-space:normal;max-width:100%}
+.phead .grow{flex:1 1 150px}
+.phead b{display:block;font-weight:600}
+.phead small{display:block;color:var(--sub);font-size:.765rem}
+.cnt{font-size:.765rem;color:var(--sub);white-space:nowrap}
+.psec.flash .group{animation:flash 1.2s}
+@keyframes flash{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}
+.searchrow{display:flex;gap:8px;align-items:center;margin-top:4px}
+.filters{display:flex;gap:6px;overflow-x:auto;margin:4px -16px 0;padding:0 16px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{min-height:44px;display:flex;align-items:center;flex:none}
+.filters span{padding:6px 14px;border-radius:999px;background:var(--fill);font-size:.882rem;white-space:nowrap}
+.filters button.on span{background:var(--ink);color:var(--bg);font-weight:600}
+input,select,textarea{width:100%;font:inherit;font-size:17px;min-height:44px;padding:10px 14px;border-radius:10px;border:0;background:var(--group);color:var(--ink);-webkit-appearance:none;appearance:none}
+input[type=search]{background:var(--fill);padding-left:14px}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--sub) 50%),linear-gradient(135deg,var(--sub) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.field{display:block;margin-top:14px}
+.field>span{display:block;font-size:.765rem;color:var(--sub);margin:0 0 6px 14px}
+.segrow{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+.segrow .chip{margin-top:10px;min-width:56px;text-align:center}
+.segrow .row2{margin-top:6px}
+.steps{padding:4px 16px 4px 40px;margin:12px 0 0;list-style:decimal}
+.steps li{padding:10px 0;font-size:.941rem;line-height:1.5}
+.steps li+li{box-shadow:inset 0 .5px 0 var(--sep)}
+.err{color:var(--ng);font-weight:600;font-size:.882rem;margin:12px 4px 0}
+/* スイッチ */
+.switch{-webkit-appearance:none;appearance:none;width:51px;height:31px;min-height:0;padding:0;border-radius:999px;background:var(--fill);position:relative;flex:none;cursor:pointer;transition:background .2s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.switch:checked{background:var(--ok)}
+.switch:checked::after{transform:translateX(20px)}
+.switch:focus{outline:none}
+/* クイズ */
+.qhead{display:flex;justify-content:space-between;font-size:.765rem;color:var(--sub);margin-top:4px}
+.qcard{background:var(--group);border-radius:22px;padding:14px 16px 20px;margin-top:8px}
+.hints{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}
+.hints div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.765rem;color:var(--sub)}
+.qex{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;margin-top:10px}
+.choices{margin-top:12px}
+.choice{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:12px 16px;position:relative;font-size:1rem}
+.choice:active:not([disabled]){background:var(--press)}
+.choice .mk{margin-left:auto;font-weight:700;flex:none}
+.choice.right{color:var(--ok);font-weight:600}
+.choice.wrong{color:var(--ng)}
+.choice[disabled]{cursor:default}
+.score{font-size:min(2.6rem,56px);font-weight:700;text-align:center;margin:6px 0 0}
+/* 設定 */
+.opts{display:flex;gap:2px;background:var(--fill);border-radius:999px;padding:2px;flex:1}
+.opts button{flex:1;min-height:44px;border-radius:999px;font-size:.882rem;text-align:center}
+.opts button.on{background:var(--group);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+@media (prefers-color-scheme:dark){.opts button.on{background:#636366}}
+/* シート */
+#sheetWrap,#actWrap{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end}
+#actWrap{z-index:70}
+.scrim{position:absolute;inset:0;background:var(--scrim);animation:fade .25s}
+.sheet{position:relative;background:var(--bg);border-radius:14px 14px 0 0;max-height:94%;overflow-y:auto;overscroll-behavior:contain;padding:0 16px calc(28px + env(safe-area-inset-bottom));animation:up .35s cubic-bezier(.32,.72,0,1)}
+.sh-head{position:sticky;top:0;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:52px;margin:0 -16px;padding:4px 8px 0;background:var(--bg)}
+.sh-head h2{margin:0;font-size:1rem;font-weight:600;text-align:center}
+.sh-head .l{justify-self:start}.sh-head .r{justify-self:end;font-weight:600}
+.x{color:var(--accent);min-height:44px;padding:0 8px;font-size:1rem}
+.x:active{opacity:.5}
+.acts{position:relative;padding:0 8px calc(8px + env(safe-area-inset-bottom));animation:up .3s cubic-bezier(.32,.72,0,1)}
+.acts .group{border-radius:14px;text-align:center;background:var(--group)}
+.acts .atitle{padding:14px 16px;font-size:.765rem;color:var(--sub)}
+.acts .cell{justify-content:center;min-height:56px;font-size:1.06rem}
+.acts .atitle+.cell::before{content:"";position:absolute;top:0;left:0;right:0;height:.5px;background:var(--sep)}
+.acts .cancel{margin-top:8px;font-weight:600;color:var(--accent);border-radius:14px}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(100%)}}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));background:var(--toast);color:#fff;border-radius:14px;padding:4px 6px 4px 16px;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:60;font-size:.882rem;animation:reveal .25s;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+#toast button{color:#64a8ff;font-weight:600;min-height:44px;padding:0 10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (hover:hover){.wl li:hover,button.cell:hover{background:var(--press)}}
+</style>
+<style>
+html{position:fixed;top:0;right:0;bottom:0;left:0;height:auto;padding:0;overflow:hidden}
+body{position:absolute;top:0;right:0;bottom:0;left:0;height:auto;padding-top:env(safe-area-inset-top,0px);overflow:hidden}
+.tabs{padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (display-mode: standalone) {
+  html{position:static;height:100lvh;overflow:visible}
+  body{position:static;height:100lvh;overflow:visible}
+  #sheetWrap,#actWrap{bottom:auto;height:100lvh}
+  .top{padding-top:10px}
+}
+</style>
+
+</head>
+<body>
+
+
+<header class="top"><h1 id="ttl">カード</h1><span class="tsub" id="tsub"></span></header>
+<main id="main">
+  <section id="v-card"></section>
+  <section id="v-roots" hidden></section>
+  <section id="v-quiz" hidden></section>
+  <section id="v-list" hidden></section>
+  <section id="v-set" hidden></section>
+</main>
+<nav class="tabs">
+  <button data-act="tab" data-t="card"><svg viewBox="0 0 24 24"><path d="M8 2h10a3 3 0 0 1 3 3v12.5h-1.8V5A1.2 1.2 0 0 0 18 3.8H8z"/><rect x="3" y="6" width="14.5" height="16" rx="3"/></svg>カード</button>
+  <button data-act="tab" data-t="roots"><svg viewBox="0 0 24 24"><rect x="1.5" y="6" width="5.5" height="12" rx="1.8"/><rect x="8.5" y="6" width="8" height="12" rx="1.8"/><rect x="18" y="6" width="4.5" height="12" rx="1.8"/></svg>パーツ</button>
+  <button data-act="tab" data-t="quiz"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5"/><path d="M9.3 9.4a2.8 2.8 0 1 1 4 2.5c-.8.4-1.3 1-1.3 1.8v.4" fill="none" stroke="var(--bar)" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1.4" fill="var(--bar)"/></svg>クイズ</button>
+  <button data-act="tab" data-t="list"><svg viewBox="0 0 24 24"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="13" height="2.4" rx="1.2"/><rect x="9" y="10.8" width="13" height="2.4" rx="1.2"/><rect x="9" y="16.8" width="13" height="2.4" rx="1.2"/></svg>単語</button>
+  <button data-act="tab" data-t="set"><svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10.3 1.5h3.4l.5 2.6c.7.2 1.3.5 1.9.9l2.3-1.4 2.4 2.4-1.4 2.3c.4.6.7 1.2.9 1.9l2.6.5v3.4l-2.6.5c-.2.7-.5 1.3-.9 1.9l1.4 2.3-2.4 2.4-2.3-1.4c-.6.4-1.2.7-1.9.9l-.5 2.6h-3.4l-.5-2.6c-.7-.2-1.3-.5-1.9-.9l-2.3 1.4-2.4-2.4 1.4-2.3c-.4-.6-.7-1.2-.9-1.9l-2.6-.5v-3.4l2.6-.5c.2-.7.5-1.3.9-1.9L3.2 6l2.4-2.4 2.3 1.4c.6-.4 1.2-.7 1.9-.9zM12 8.3a3.7 3.7 0 1 0 0 7.4 3.7 3.7 0 0 0 0-7.4z"/></svg>設定</button>
+</nav>
+<div id="sheetWrap" hidden><div class="scrim" data-act="close"></div><div class="sheet" id="sheet"></div></div>
+<div id="actWrap" hidden><div class="scrim" data-act="actCancel"></div><div class="acts" id="acts"></div></div>
+<div id="toast" hidden></div>
+
+<script>
+/*DATA*/
+// パーツ：id: [種類(p接頭辞/r語根/s接尾辞), 形(カンマ区切り), 意味, ひとこと語源]
+const PB={
+in_in:["p","in,im","中へ・上に","ラテン語 in「中に・上に」"],
+in_not:["p","in,im,il,ir","〜でない","ラテン語 in-「否定」"],
+un:["p","un","〜でない","古英語 un-「否定」"],
+ex:["p","ex,e,ef","外へ","ラテン語 ex「〜から外へ」"],
+re:["p","re","再び・後ろへ","ラテン語 re-「戻って・再び」"],
+pro:["p","pro","前へ","ラテン語 pro「前に」"],
+pre:["p","pre","前もって・先に","ラテン語 prae「前に」"],
+de:["p","de","下へ・離れて","ラテン語 de「下へ・〜から離れて」"],
+dis:["p","dis,di,dif","離れて・別々に","ラテン語 dis-「離れて」"],
+con:["p","con,com,col,cor,co","共に・すっかり","ラテン語 cum「〜と共に」"],
+sub:["p","sub,sus,sup,suc,suf,sug","下に","ラテン語 sub「下に」"],
+trans:["p","trans,tran","越えて・向こうへ","ラテン語 trans「越えて」"],
+inter:["p","inter","間に","ラテン語 inter「〜の間に」"],
+ad:["p","ad,ac,af,ag,al,ap,as,at,a","〜へ・〜に向かって","ラテン語 ad「〜へ」"],
+ob:["p","ob,oc,of,op","向かって・逆らって","ラテン語 ob「〜に向かって・逆らって」"],
+per:["p","per","通して・すっかり","ラテン語 per「〜を通して」"],
+ab:["p","ab,abs","離れて","ラテン語 ab「〜から離れて」"],
+intro:["p","intro","中へ","ラテン語 intro「中へ」"],
+contra:["p","contra,contro,counter","反対に","ラテン語 contra「〜に反して」"],
+post:["p","post","後に","ラテン語 post「後に」"],
+super:["p","super,sur","上に・越えて","ラテン語 super「上に」"],
+infra:["p","infra","下に","ラテン語 infra「下に」"],
+se:["p","se","離れて","ラテン語 se-「離れて」"],
+spect:["r","spect,spic,spec","見る","ラテン語 specere「見る」"],
+port:["r","port","運ぶ","ラテン語 portare「運ぶ」"],
+dict:["r","dict,dic","言う","ラテン語 dicere「言う」"],
+duct:["r","duct,duce,duc","導く","ラテン語 ducere「導く」"],
+mit:["r","mit,miss","送る","ラテン語 mittere「送る」"],
+pend:["r","pend,pens","つるす・量る","ラテン語 pendere「つるす・量って払う」"],
+press:["r","press","押す","ラテン語 premere「押す」（過去分詞 pressus）"],
+tract:["r","tract","引く","ラテン語 trahere「引く」（過去分詞 tractus）"],
+vert:["r","vert,vers,verse","向ける・回す","ラテン語 vertere「回す」"],
+cede:["r","cede,ceed,cess","行く・譲る","ラテン語 cedere「行く・譲る」"],
+fer:["r","fer","運ぶ","ラテン語 ferre「運ぶ」"],
+ject:["r","ject","投げる","ラテン語 iacere「投げる」（過去分詞 iactus）"],
+pose:["r","pose,pone,pon,pos","置く","ラテン語 ponere「置く」（過去分詞 positus）"],
+scrib:["r","scribe,scrib,script","書く","ラテン語 scribere「書く」"],
+struct:["r","struct","積み上げる・建てる","ラテン語 struere「積み上げる」"],
+tain:["r","tain,ten,tin","保つ","ラテン語 tenere「保つ」"],
+vid:["r","vid,vis,vise,vide","見る","ラテン語 videre「見る」（過去分詞 visus）"],
+cap:["r","cap,cept,ceive,cip","取る・つかむ","ラテン語 capere「つかむ」"],
+fac:["r","fac,fact,fect,fic","作る・する","ラテン語 facere「作る・する」"],
+gress:["r","gress,grad","進む","ラテン語 gradi「歩む」（過去分詞 gressus）"],
+rupt:["r","rupt","破る・壊す","ラテン語 rumpere「破る」"],
+cur:["r","cur,curr,curs","走る・流れる","ラテン語 currere「走る」"],
+spir:["r","spire,spir,pire","息をする","ラテン語 spirare「息をする」"],
+sequ:["r","sequ,secu,secut,secute","後に続く","ラテン語 sequi「後に続く」"],
+voc:["r","voc,voke,vok","声・呼ぶ","ラテン語 vocare「呼ぶ」・vox「声」"],
+flu:["r","flu,flux,fluct","流れる","ラテン語 fluere「流れる」"],
+pel:["r","pel,puls,pulse","押す・駆り立てる","ラテン語 pellere「押しやる」（過去分詞 pulsus）"],
+clud:["r","clude,clud,clus,close","閉じる","ラテン語 claudere「閉じる」"],
+mod:["r","mod","型・尺度","ラテン語 modus「尺度・型」"],
+mov:["r","mov,mot,mote,mob","動かす","ラテン語 movere「動かす」"],
+ver:["r","ver","真実","ラテン語 verus「真実の」"],
+manu:["r","manu,main,man","手","ラテン語 manus「手」"],
+ion:["s","ion,tion,sion,ation","〜すること（名詞）","ラテン語 -io"],
+ive:["s","ive","〜の性質がある（形容詞）","ラテン語 -ivus"],
+able:["s","able,ible","〜できる","ラテン語 -abilis／-ibilis"],
+ence:["s","ence,ance,ency,ancy","〜こと・状態（名詞）","ラテン語 -entia／-antia"],
+ent:["s","ent,ient,ant","〜している（形容詞・人）","ラテン語 -ens／-ans（現在分詞）"],
+ate:["s","ate,uate","〜にする（動詞）・〜な","ラテン語 -atus"],
+ure:["s","ure","〜こと・もの（名詞）","ラテン語 -ura"],
+al:["s","al","〜の（形容詞）","ラテン語 -alis"],
+ous:["s","ous,ious,uous","〜に満ちた（形容詞）","ラテン語 -osus"],
+ity:["s","ity","〜性・〜さ（名詞）","ラテン語 -itas"],
+ing:["s","ing","〜している","英語 -ing"],
+ise:["s","ise,ize","〜にする（動詞）","ギリシャ語 -izein（フランス語経由）"],
+ify:["s","ify,fy","〜にする（動詞）","ラテン語 -ficare（facere「する」から）"],
+el:["s","el","小さいもの","ラテン語 -ellus（小ささを表す）"],
+ile:["s","ile","〜できる・〜しやすい","ラテン語 -ilis"],
+or:["s","or,er","〜する人・もの","ラテン語 -or"],
+ment:["s","ment","〜こと・結果（名詞）","ラテン語 -mentum"]
+};
+// 単語：[単語, 品詞, 意味, パーツ(id または id:綴り を | でつなぐ), 成り立ち, 例文, 訳]
+const WB=[
+["inspect","動","検査する・詳しく調べる","in_in:in|spect","中まで見る → 詳しく調べる","The safety team will inspect the factory next week.","安全チームが来週、工場を検査する。"],
+["respect","動・名","尊敬する／尊敬・点","re|spect","振り返って見る → 一目置く","Our manager is respected by everyone on the team.","うちの部長はチームの全員から尊敬されている。"],
+["prospect","名","見込み・見通し","pro|spect","前を見る → 先の見通し","The prospects for the new product look good.","新製品の見通しは明るい。"],
+["perspective","名","視点・見方","per|spect|ive","通して見ること → ものの見方","Try to see the problem from the customer's perspective.","顧客の視点からその問題を見るようにしてください。"],
+["conspicuous","形","目立つ・人目を引く","con|spect:spic|ous:uous","すっかり見える → 目立つ","Put the sign in a conspicuous place near the entrance.","その掲示は入口近くの目立つ場所に貼ってください。"],
+["import","動・名","輸入する／輸入","in_in:im|port","中へ運ぶ → 輸入する","The company imports coffee beans from Brazil.","その会社はブラジルからコーヒー豆を輸入している。"],
+["export","動・名","輸出する／輸出","ex|port","外へ運ぶ → 輸出する","Japan exports a large number of cars every year.","日本は毎年たくさんの車を輸出している。"],
+["transport","動・名","輸送する／輸送","trans|port","向こうへ運ぶ → 輸送する","The goods will be transported by ship.","商品は船で輸送される。"],
+["portable","形","持ち運べる","port|able","運ぶことができる","This portable charger fits in your pocket.","この携帯充電器はポケットに入る。"],
+["support","動・名","支える・支援する／支援","sub:sup|port","下から運ぶ → 支える","We need more support from the head office.","本社からもっと支援が必要だ。"],
+["predict","動","予測する","pre|dict","前もって言う → 予測する","Experts predict that sales will rise next year.","専門家は来年、売上が伸びると予測している。"],
+["contradict","動","矛盾する・反論する","contra|dict","反対のことを言う → 矛盾する","His actions contradict what he said in the meeting.","彼の行動は会議で言ったことと矛盾している。"],
+["dictate","動","書き取らせる・指図する","dict|ate","言って書かせる → 指図する","The manager dictated a letter to her assistant.","部長は助手に手紙を口述して書き取らせた。"],
+["verdict","名","評決・判断","ver|dict","真実を言う → 評決","The jury reached a verdict after three days.","陪審は3日後に評決に達した。"],
+["indicate","動","示す・指し示す","in_in:in|dict:dic|ate","〜に向けて言う → 指し示す","The survey results indicate a change in customer needs.","調査結果は顧客のニーズの変化を示している。"],
+["produce","動","生産する・生み出す","pro|duct:duce","前へ導き出す → 生み出す","This factory produces 500 cars a day.","この工場は1日に500台の車を生産する。"],
+["reduce","動","減らす","re|duct:duce","後ろへ導く → 減らす","We must reduce costs by ten percent.","経費を10パーセント減らさなければならない。"],
+["introduce","動","紹介する・導入する","intro|duct:duce","中へ導く → 導入する","The company introduced a new system last month.","会社は先月、新しいシステムを導入した。"],
+["conduct","動・名","行う・実施する／行い","con|duct","共に導く → 取り仕切る","We conducted a survey of 500 customers.","私たちは500人の顧客を対象に調査を行った。"],
+["deduct","動","差し引く・控除する","de|duct","離して導く → 差し引く","Taxes are deducted from your salary.","税金は給料から差し引かれる。"],
+["submit","動","提出する","sub|mit","下に送る → 差し出す","Please submit your report by Friday.","金曜日までに報告書を提出してください。"],
+["permit","動・名","許可する／許可証","per|mit","通して送る → 通してやる","Smoking is not permitted in this building.","この建物の中での喫煙は許可されていない。"],
+["emit","動","放出する・出す","ex:e|mit","外へ送る → 放出する","Electric cars emit no exhaust gas.","電気自動車は排気ガスを出さない。"],
+["dismiss","動","退ける・解雇する","dis|mit:miss","離れて送る → 去らせる","The manager dismissed the idea as too expensive.","部長はその案を費用がかかりすぎるとして退けた。"],
+["commission","名","手数料・委託","con:com|mit:miss|ion","まとめて送り任せること → 委託・手数料","The agent receives a five percent commission on each sale.","代理人は売上ごとに5パーセントの手数料を受け取る。"],
+["depend","動","頼る・〜次第である","de|pend","下にぶら下がる → 頼る","The schedule depends on the weather.","予定は天気次第だ。"],
+["suspend","動","一時停止する・つるす","sub:sus|pend","下につるす → 宙ぶらりんにする","The train service was suspended because of the storm.","嵐のため列車の運行が一時停止された。"],
+["compensate","動","補償する・埋め合わせる","con:com|pend:pens|ate","共に量ってつり合わせる → 埋め合わせる","The airline will compensate passengers for the delay.","航空会社は遅れについて乗客に補償する。"],
+["pension","名","年金","pend:pens|ion","量って払うもの → 年金","My grandfather lives on his pension.","祖父は年金で暮らしている。"],
+["impending","形","差し迫った","in_in:im|pend|ing","上にぶら下がっている → 差し迫った","Everyone was worried about the impending deadline.","皆、差し迫った締め切りを心配していた。"],
+["express","動","表現する・述べる","ex|press","外へ押し出す → 表現する","She expressed her thanks to the staff.","彼女はスタッフに感謝の気持ちを伝えた。"],
+["impress","動","感心させる・印象づける","in_in:im|press","上から押しつける → 印象を残す","The interviewer was impressed by his experience.","面接官は彼の経験に感心した。"],
+["suppress","動","抑える・抑圧する","sub:sup|press","下へ押さえつける → 抑える","She couldn't suppress a smile.","彼女は笑みを抑えきれなかった。"],
+["depression","名","不況・落ち込み","de|press|ion","下へ押されること → 不況・うつ","The country went through a long economic depression.","その国は長い不況を経験した。"],
+["compress","動","圧縮する","con:com|press","ぎゅっと押す → 圧縮する","You can compress the files before sending them.","送る前にファイルを圧縮できる。"],
+["attract","動","引きつける","ad:at|tract","〜へ引く → 引きつける","The event attracted over 3,000 visitors.","そのイベントには3,000人以上が訪れた。"],
+["extract","動","抽出する・取り出す","ex|tract","外へ引き出す → 抽出する","The software extracts data from the documents.","そのソフトは書類からデータを抜き出す。"],
+["contract","名・動","契約／契約する・縮む","con|tract","互いに引き合う → 取り決め","We signed a two-year contract with the supplier.","私たちは仕入れ先と2年契約を結んだ。"],
+["distract","動","気をそらす","dis|tract","引き離す → 気をそらす","The noise distracted me from my work.","騒音で仕事に集中できなかった。"],
+["subtract","動","引く・差し引く","sub|tract","下から引き抜く → 引き算する","Subtract the discount from the total price.","合計金額から割引分を引いてください。"],
+["convert","動","変える・変換する","con|vert","すっかり向きを変える → 変換する","The old warehouse was converted into an office.","古い倉庫は事務所に改装された。"],
+["divert","動","そらす・迂回させる","dis:di|vert","別の方へ向ける → そらす","Traffic was diverted because of the accident.","事故のため車は迂回させられた。"],
+["reverse","動・形","逆にする・覆す／逆の","re|vert:verse","後ろへ向ける → 逆にする","The court reversed the earlier decision.","裁判所は前の判決を覆した。"],
+["diverse","形","多様な","dis:di|vert:verse","別々の方を向いた → さまざまな","Our team has a diverse range of skills.","私たちのチームはさまざまな技能を持っている。"],
+["advertise","動","広告する","ad|vert|ise","注意をこちらへ向けさせる → 広告する","They advertised the job on their website.","彼らは自社サイトでその仕事の求人を出した。"],
+["proceed","動","進む・続ける","pro|cede:ceed","前へ行く → 進む","Please proceed to Gate 12.","12番ゲートへお進みください。"],
+["exceed","動","超える","ex|cede:ceed","外へ行く → 限度を超える","Sales exceeded our expectations.","売上は予想を上回った。"],
+["recession","名","景気後退","re|cede:cess|ion","後ろへ下がること → 景気後退","Many companies cut jobs during the recession.","景気後退の間に多くの会社が人員を減らした。"],
+["precede","動","先行する・〜より前に来る","pre|cede","前に行く → 先立つ","A short speech preceded the dinner.","夕食の前に短いスピーチがあった。"],
+["access","名・動","利用・接近／アクセスする","ad:ac|cede:cess","〜へ行くこと → 近づく手段","All employees have access to the database.","全社員がそのデータベースを利用できる。"],
+["transfer","動・名","移す・転勤させる／移動","trans|fer","向こうへ運ぶ → 移す","She was transferred to the Osaka branch.","彼女は大阪支店に転勤になった。"],
+["refer","動","参照する・言及する","re|fer","元へ運ぶ → 〜に戻って見る","Please refer to the manual for details.","詳しくは説明書を見てください。"],
+["offer","動・名","申し出る・提供する／申し出","ob:of|fer","前に運ぶ → 差し出す","The hotel offers free breakfast to all guests.","そのホテルは全宿泊客に無料の朝食を出している。"],
+["prefer","動","〜のほうを好む","pre|fer","前に運ぶ → 先に選ぶ","I prefer working in the morning.","私は午前中に働くほうが好きだ。"],
+["confer","動","協議する・授ける","con|fer","持ち寄る → 話し合う","The lawyers conferred before the hearing.","弁護士たちは審理の前に協議した。"],
+["reject","動","断る・却下する","re|ject","投げ返す → 拒む","The board rejected the proposal.","取締役会はその提案を却下した。"],
+["inject","動","注射する・注入する","in_in:in|ject","中へ投げ入れる → 注入する","The investors injected new money into the company.","投資家たちはその会社に新たな資金を注ぎ込んだ。"],
+["project","名・動","計画・事業／見積もる・映す","pro|ject","前へ投げ出す → 計画・投影","The project will be completed by March.","その事業は3月までに完了する予定だ。"],
+["object","動・名","反対する／物・目的","ob|ject","向かって投げつける → 反対する","Several residents objected to the plan.","住民の何人かがその計画に反対した。"],
+["subject","名・形","話題・科目／〜を受けやすい","sub|ject","下に投げられた → 支配下の・題材","Prices are subject to change without notice.","価格は予告なく変わることがあります。"],
+["propose","動","提案する","pro|pose","前に置く → 提案する","She proposed a new marketing plan.","彼女は新しい販売計画を提案した。"],
+["dispose","動","処分する（dispose of）","dis|pose","離して置く → 片づける","Please dispose of used batteries properly.","使用済みの電池は正しく処分してください。"],
+["expose","動","さらす・暴露する","ex|pose","外に置く → さらす","Don't expose the product to direct sunlight.","製品を直射日光に当てないでください。"],
+["component","名","部品・構成要素","con:com|pose:pon|ent","共に置かれたもの → 部品","The factory makes components for cars.","その工場は車の部品を作っている。"],
+["postpone","動","延期する","post|pose:pone","後ろに置く → 延期する","The meeting was postponed until next week.","会議は来週に延期された。"],
+["describe","動","描写する・説明する","de|scrib:scribe","書き写す → 描写する","Can you describe the problem in detail?","問題を詳しく説明してもらえますか。"],
+["prescribe","動","処方する・定める","pre|scrib:scribe","前もって書く → 指示する","The doctor prescribed some medicine for my cough.","医者は咳の薬を処方した。"],
+["subscribe","動","定期購読する・登録する","sub|scrib:scribe","下に名前を書く → 申し込む","I subscribe to two business magazines.","私はビジネス誌を2誌、定期購読している。"],
+["manuscript","名","原稿・写本","manu|scrib:script","手で書いたもの → 原稿","The author sent the manuscript to the publisher.","著者は出版社に原稿を送った。"],
+["transcript","名","記録・書き起こし","trans:tran|scrib:script","書き移したもの → 記録","A transcript of the interview is available online.","インタビューの書き起こしはネットで読める。"],
+["construct","動","建設する・組み立てる","con|struct","共に積み上げる → 建設する","A new bridge is being constructed over the river.","川に新しい橋が建設されている。"],
+["instruct","動","指示する・教える","in_in:in|struct","中に積み上げる → 教え込む","Staff were instructed to wear name tags.","スタッフは名札を付けるよう指示された。"],
+["obstruct","動","妨げる・ふさぐ","ob|struct","前に積み上げる → ふさぐ","A fallen tree obstructed the road.","倒れた木が道路をふさいでいた。"],
+["destruction","名","破壊","de|struct|ion","積んだものを崩すこと → 破壊","The storm caused widespread destruction.","嵐は広い範囲に被害をもたらした。"],
+["infrastructure","名","社会基盤・インフラ","infra|struct|ure","下に組まれたもの → 基盤","The government plans to invest in infrastructure.","政府はインフラに投資する予定だ。"],
+["maintain","動","維持する・整備する","manu:main|tain","手で保つ → 維持する","It is expensive to maintain an old building.","古い建物を維持するにはお金がかかる。"],
+["retain","動","保持する・引き留める","re|tain","後ろで保つ → 手放さない","The company wants to retain skilled workers.","会社は腕のいい社員を引き留めたい。"],
+["obtain","動","手に入れる","ob|tain","しっかり保つ → 得る","You need to obtain permission from your manager.","上司の許可を得る必要がある。"],
+["sustain","動","持続させる・支える","sub:sus|tain","下から保つ → 支える","It will be hard to sustain this level of growth.","この成長を続けるのは難しいだろう。"],
+["contain","動","含む","con|tain","まとめて保つ → 中に持つ","This drink contains no sugar.","この飲み物には砂糖が入っていない。"],
+["evident","形","明らかな","ex:e|vid|ent","外から見える → 明らかな","It was evident that he was tired.","彼が疲れているのは明らかだった。"],
+["visible","形","目に見える","vid:vis|able:ible","見ることができる","The mountain is visible from the office window.","事務所の窓から山が見える。"],
+["revise","動","改訂する・見直す","re|vid:vise","もう一度見る → 見直す","We revised the budget after the meeting.","会議のあと、予算を見直した。"],
+["supervise","動","監督する","super|vid:vise","上から見る → 監督する","She supervises a team of ten people.","彼女は10人のチームを監督している。"],
+["provide","動","提供する・供給する","pro|vid:vide","前もって見る → 備える・与える","The hotel provides free Wi-Fi.","そのホテルは無料のWi-Fiを提供している。"],
+["accept","動","受け入れる","ad:ac|cap:cept","自分の方へ取る → 受け入れる","She accepted the job offer.","彼女はその仕事の申し出を受けた。"],
+["except","前・動","〜を除いて／除外する","ex|cap:cept","外へ取り出す → 除く","The store is open every day except Monday.","その店は月曜日以外は毎日開いている。"],
+["receive","動","受け取る","re|cap:ceive","取り戻す → 受け取る","Did you receive my email?","私のメールは届きましたか。"],
+["perceive","動","気づく・知覚する","per|cap:ceive","すっかりつかむ → 感じ取る","Customers perceive the brand as high quality.","客はそのブランドを高品質だと感じている。"],
+["capable","形","能力がある","cap|able","つかむことができる → 能力がある","She is capable of managing a large team.","彼女は大きなチームをまとめる力がある。"],
+["effect","名","効果・影響","ex:ef|fac:fect","外に作り出されたもの → 結果・効果","The new law will take effect in April.","新しい法律は4月に施行される。"],
+["defect","名","欠陥","de|fac:fect","作り損ない → 欠陥","The cars were recalled because of a defect.","欠陥があったため、その車は回収された。"],
+["affect","動","影響する","ad:af|fac:fect","〜に働きかける → 影響を与える","The strike affected thousands of travelers.","ストライキは何千人もの旅行者に影響した。"],
+["efficient","形","効率的な","ex:ef|fac:fic|ent:ient","外に作り出す力のある → 効率のよい","The new system is more efficient than the old one.","新しいシステムは古いものより効率がいい。"],
+["manufacture","動・名","製造する／製造","manu|fac:fact|ure","手で作ること → 製造","The company manufactures electronic parts.","その会社は電子部品を製造している。"],
+["progress","名・動","進歩・進み具合／進む","pro|gress","前へ進む → 進歩","We are making good progress on the project.","その事業は順調に進んでいる。"],
+["aggressive","形","攻撃的な・積極的な","ad:ag|gress|ive","〜に向かって進む → 攻めの","The company has an aggressive sales strategy.","その会社は攻めの販売戦略をとっている。"],
+["congress","名","議会・会議","con|gress","共に進み集まる → 会議","The bill was passed by Congress.","その法案は議会で可決された。"],
+["digress","動","（話が）脱線する","dis:di|gress","わきへ進む → 脱線する","Sorry, I digressed. Let's get back to the topic.","すみません、話がそれました。本題に戻りましょう。"],
+["transgress","動","違反する・踏み越える","trans|gress","越えて進む → 限度を踏み越える","Anyone who transgresses the rules will be punished.","規則を破った者は罰せられる。"],
+["interrupt","動","中断する・邪魔する","inter|rupt","間を破る → 割り込む","Sorry to interrupt, but you have a phone call.","お話し中すみません、お電話です。"],
+["abrupt","形","突然の・ぶっきらぼうな","ab|rupt","ちぎれて離れた → 唐突な","The meeting came to an abrupt end.","会議は突然終わった。"],
+["corrupt","形・動","腐敗した／堕落させる","con:cor|rupt","すっかり壊れた → 腐敗した","The corrupt official was arrested.","汚職をした役人が逮捕された。"],
+["disrupt","動","混乱させる・中断させる","dis|rupt","ばらばらに破る → かき乱す","The snow disrupted train services.","雪で列車の運行が乱れた。"],
+["erupt","動","噴火する・勃発する","ex:e|rupt","外へ破って出る → 噴き出す","The volcano erupted last night.","昨夜、その火山が噴火した。"],
+["occur","動","起こる・思い浮かぶ","ob:oc|cur","前に走り出る → 起こる","The accident occurred at 9 a.m.","事故は午前9時に起きた。"],
+["current","形・名","現在の／流れ","cur:curr|ent","走っている → 今流れている","What is your current address?","現住所はどちらですか。"],
+["recur","動","再発する・繰り返す","re|cur","また走って戻る → 再び起こる","Call us if the problem recurs.","問題が再び起きたらお電話ください。"],
+["concur","動","同意する・同時に起こる","con|cur","共に走る → 意見が一致する","I concur with your opinion.","あなたの意見に同感です。"],
+["excursion","名","小旅行・遠足","ex|cur:curs|ion","外へ走り出ること → 小旅行","The tour includes an excursion to the island.","そのツアーには島への小旅行が含まれている。"],
+["inspire","動","やる気にさせる・ひらめかせる","in_in:in|spir:spire","息を吹き込む → 奮い立たせる","Her speech inspired many young people.","彼女の演説は多くの若者を奮い立たせた。"],
+["expire","動","期限が切れる","ex|spir:pire","息を吐き出す → 息絶える → 期限切れ","My passport expires next month.","私のパスポートは来月で期限が切れる。"],
+["aspire","動","熱望する・志す","ad:a|spir:spire","〜に向かって息をする → 強く望む","He aspires to become a manager.","彼は管理職になることを目指している。"],
+["conspire","動","共謀する","con|spir:spire","共に息をする → 示し合わせる","They conspired to steal the data.","彼らはデータを盗もうと共謀した。"],
+["perspire","動","汗をかく","per|spir:spire","（肌を）通して息をする → 汗をかく","I perspire a lot in summer.","夏はたくさん汗をかく。"],
+["consequence","名","結果・影響","con|sequ|ence","共に後に続くもの → 結果","Think about the consequences before you act.","行動する前にその結果を考えなさい。"],
+["subsequent","形","その後の","sub|sequ|ent","すぐ下に続く → その後の","Subsequent meetings will be held online.","以降の会議はオンラインで行う。"],
+["sequence","名","順序・連続","sequ|ence","後に続くこと → 順序","Follow the steps in the correct sequence.","手順を正しい順序で進めてください。"],
+["consecutive","形","連続した","con|sequ:secut|ive","共に続いていく → 連続した","Sales have grown for five consecutive years.","売上は5年連続で伸びている。"],
+["persecute","動","迫害する","per|sequ:secute","しつこく後を追う → 迫害する","The group was persecuted for its beliefs.","その集団は信仰のために迫害された。"],
+["advocate","動・名","主張する・支持する／支持者","ad|voc|ate","〜のために声を上げる → 擁護する","She advocates flexible working hours.","彼女は勤務時間を柔軟にすべきだと主張している。"],
+["vocal","形","声の・はっきり意見を言う","voc|al","声の","He was very vocal about the changes.","彼はその変更について、はっきり意見を言った。"],
+["provoke","動","引き起こす・怒らせる","pro|voc:voke","前へ呼び出す → 引き起こす","The decision provoked strong criticism.","その決定は強い批判を招いた。"],
+["revoke","動","取り消す・無効にする","re|voc:voke","呼び戻す → 取り消す","His license was revoked.","彼の免許は取り消された。"],
+["vocation","名","天職・職業","voc|ion:ation","（神に）呼ばれること → 天職","Teaching is her true vocation.","教えることは彼女の天職だ。"],
+["influence","名・動","影響／影響を与える","in_in:in|flu|ence","中へ流れ込むもの → 影響","Social media has a big influence on young people.","SNSは若者に大きな影響を与えている。"],
+["fluent","形","流暢な","flu|ent","流れるような → 流暢な","She is fluent in three languages.","彼女は3か国語を流暢に話す。"],
+["affluent","形","裕福な","ad:af|flu|ent","豊かに流れ込む → 裕福な","They live in an affluent neighborhood.","彼らは裕福な住宅地に住んでいる。"],
+["influx","名","流入・殺到","in_in:in|flu:flux","中へ流れ込むこと → 流入","The city saw an influx of tourists this summer.","この夏、その街には観光客が押し寄せた。"],
+["fluctuate","動","変動する","flu:fluct|ate:uate","波のように流れる → 上下する","Prices fluctuate depending on the season.","価格は季節によって変動する。"],
+["compel","動","強いる・無理に〜させる","con:com|pel","強く押しやる → 強いる","The bad weather compelled us to cancel the trip.","悪天候のため、旅行を取りやめざるを得なかった。"],
+["expel","動","追放する・排出する","ex|pel","外へ追いやる → 追い出す","The student was expelled from school.","その生徒は退学処分になった。"],
+["propel","動","推進する","pro|pel","前へ押しやる → 推し進める","The ship is propelled by two engines.","その船は2基のエンジンで進む。"],
+["impulse","名","衝動","in_in:im|pel:pulse","内から押し動かすもの → 衝動","I bought the jacket on impulse.","衝動買いでそのジャケットを買った。"],
+["repel","動","はね返す・寄せつけない","re|pel","押し返す → はね返す","This spray repels mosquitoes.","このスプレーは蚊を寄せつけない。"],
+["include","動","含む","in_in:in|clud:clude","中に閉じ込める → 含む","The price includes tax.","価格には税が含まれている。"],
+["exclude","動","除外する","ex|clud:clude","外に締め出す → 除く","Children under 12 are excluded from the survey.","12歳未満の子どもは調査の対象外だ。"],
+["conclude","動","結論づける・終える","con|clud:clude","すっかり閉じる → 締めくくる","The report concludes that the plan is too risky.","報告書は、その計画は危険が大きすぎると結論づけている。"],
+["exclusive","形","独占的な・高級な","ex|clud:clus|ive","外を締め出す → 独占的な","The magazine got an exclusive interview with the CEO.","その雑誌は社長への独占インタビューを取った。"],
+["preclude","動","妨げる・不可能にする","pre|clud:clude","前もって閉じる → 締め出す","The rules preclude employees from accepting gifts.","規則により、社員は贈り物を受け取れない。"],
+["modify","動","修正する・変更する","mod|ify","型に合わせる → 手を加える","We need to modify the design slightly.","設計を少し変える必要がある。"],
+["accommodate","動","収容する・対応する","ad:ac|con:com|mod|ate","〜に型を合わせる → 受け入れる","The hall can accommodate 500 people.","そのホールは500人を収容できる。"],
+["commodity","名","商品・必需品","con:com|mod|ity","尺度にかなうもの → 便利な品","Oil is one of the most traded commodities.","石油は最も多く取引される商品の1つだ。"],
+["model","名","型・模型・手本","mod|el","小さな型 → 模型・手本","The new model will be released in spring.","新型は春に発売される。"],
+["promote","動","昇進させる・促進する","pro|mov:mote","前へ動かす → 昇進させる","She was promoted to sales manager.","彼女は営業部長に昇進した。"],
+["remote","形","遠く離れた・遠隔の","re|mov:mote","後ろへ動かされた → 遠い","Remote work has become common since 2020.","2020年以降、在宅勤務が当たり前になった。"],
+["motive","名","動機","mov:mot|ive","人を動かすもの → 動機","Police are still looking for a motive.","警察はまだ動機を調べている。"],
+["emotion","名","感情","ex:e|mov:mot|ion","外へ動き出すこと → 感情","He rarely shows his emotions at work.","彼は職場ではめったに感情を表に出さない。"],
+["mobile","形","動かせる・移動式の","mov:mob|ile","動くことができる","Mobile phones are not allowed in the exam room.","試験会場では携帯電話を使えない。"]
+];
+/*END*/
+
+const KEY='partsWordbook.v1';
+const DAY=864e5;
+const INT=[0,1,3,7,14,30,60];
+const TYPE_NAME={p:'接頭辞',r:'語根',s:'接尾辞'};
+const ST_NAME={new:'未学習',ng:'まだ',ok:'覚えた'};
+const POS=['動','名','形','副','動・名','名・動','形・名','動・形','前・動','その他'];
+const TITLES={card:'カード',roots:'パーツ',quiz:'クイズ',list:'単語',set:'設定'};
+const ICON={
+  say:'<svg class="ic" viewBox="0 0 24 24"><path d="M3 9.6v4.8c0 .6.5 1.1 1.1 1.1h2.8l4.4 3.7c.7.6 1.7.1 1.7-.8V5.6c0-.9-1-1.4-1.7-.8L6.9 8.5H4.1C3.5 8.5 3 9 3 9.6z"/><path d="M16.2 8.6a5 5 0 0 1 0 6.8M18.8 6a8.6 8.6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+  chev:'<svg class="chev" viewBox="0 0 9 14"><path d="M1.5 1.5 7 7l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const str=v=>typeof v==='string'?v:'';
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startOfDay(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function today(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+
+/* ---------- 保存と読み込み ---------- */
+let S,P={},W=[],WMAP={};
+function defState(){return {v:1,tab:'card',rootTab:'r',prog:{},words:[],parts:{},set:{newPerDay:10,qLearned:false,badge:false},day:{date:'',newDone:0},sess:null,quiz:null,draft:null,newDraft:null,lastBackup:0,firstUse:Date.now()}}
+function blankDraft(){return {id:null,w:'',pos:'動',m:'',split:'',touched:false,sel:{},g:'',ex:'',exj:''}}
+function validPart(v){return v&&typeof v==='object'&&['p','r','s'].includes(v.type)&&Array.isArray(v.forms)&&v.forms.length&&v.forms.every(f=>typeof f==='string'&&f)&&typeof v.m==='string'}
+function validWord(w){return w&&typeof w==='object'&&typeof w.id==='string'&&w.id.startsWith('c_')&&typeof w.w==='string'&&w.w&&typeof w.m==='string'&&Array.isArray(w.segs)&&w.segs.length>0&&w.segs.every(s=>s&&typeof s.id==='string'&&typeof s.t==='string'&&s.t)}
+function validQuiz(q){return q&&typeof q==='object'&&(q.mode==='w'||q.mode==='p')&&Number.isInteger(q.i)&&q.i>=0&&Array.isArray(q.qs)&&q.qs.length>0&&q.qs.every(it=>it&&typeof it.k==='string'&&Array.isArray(it.ch)&&it.ch.length>=2&&it.ch.every(c=>typeof c==='string')&&Number.isInteger(it.a)&&it.a>=0&&it.a<it.ch.length&&(it.pick===null||(Number.isInteger(it.pick)&&it.pick>=0&&it.pick<it.ch.length)))}
+function sanDraft(x){
+  if(!x||typeof x!=='object'||typeof x.w!=='string')return null;
+  const d=blankDraft();
+  for(const k of ['w','pos','m','split','g','ex','exj'])d[k]=str(x[k])||d[k];
+  d.id=typeof x.id==='string'?x.id:null;
+  d.touched=x.touched===true;
+  if(x.sel&&typeof x.sel==='object')for(const [k,v] of Object.entries(x.sel)){if(v&&typeof v==='object')d.sel[k]={pid:str(v.pid),nm:str(v.nm),nt:['p','r','s'].includes(v.nt)?v.nt:'r'}}
+  return d;
+}
+function sanitize(o){
+  if(!o||typeof o!=='object')return null;
+  const s=defState();
+  if(Object.prototype.hasOwnProperty.call(TITLES,o.tab))s.tab=o.tab;
+  if(['p','r','s'].includes(o.rootTab))s.rootTab=o.rootTab;
+  if(o.prog&&typeof o.prog==='object')for(const [k,v] of Object.entries(o.prog)){
+    if(v&&typeof v==='object'&&Number.isFinite(v.b)&&Number.isFinite(v.d))s.prog[k]={b:Math.min(6,Math.max(0,v.b|0)),d:v.d,n:Math.max(0,v.n|0),w:Math.max(0,v.w|0)};
+  }
+  if(o.parts&&typeof o.parts==='object')for(const [k,v] of Object.entries(o.parts)){
+    if(k.startsWith('u_')&&validPart(v))s.parts[k]={type:v.type,forms:v.forms.map(f=>f.toLowerCase()),m:v.m,o:str(v.o)};
+  }
+  if(Array.isArray(o.words))for(const w of o.words){
+    if(validWord(w)&&!s.words.some(x=>x.id===w.id))s.words.push({id:w.id,w:w.w,pos:str(w.pos)||'その他',m:w.m,segs:w.segs.map(x=>({id:x.id,t:x.t})),g:str(w.g),ex:str(w.ex),exj:str(w.exj)});
+  }
+  if(o.set&&typeof o.set==='object'){
+    if([5,10,15,20].includes(o.set.newPerDay))s.set.newPerDay=o.set.newPerDay;
+    s.set.qLearned=o.set.qLearned===true;
+    s.set.badge=o.set.badge===true;
+  }
+  if(o.day&&typeof o.day.date==='string')s.day={date:o.day.date,newDone:Math.max(0,o.day.newDone|0)};
+  if(o.sess&&typeof o.sess==='object'&&typeof o.sess.date==='string'&&Array.isArray(o.sess.q)){
+    s.sess={date:o.sess.date,q:o.sess.q.filter(x=>typeof x==='string'),i:Math.max(0,o.sess.i|0),again:Array.isArray(o.sess.again)?o.sess.again.filter(x=>typeof x==='string'):[],ok:Math.max(0,o.sess.ok|0),ng:Math.max(0,o.sess.ng|0)};
+  }
+  if(validQuiz(o.quiz))s.quiz={mode:o.quiz.mode,i:o.quiz.i,qs:o.quiz.qs.map(it=>({k:it.k,ch:it.ch.slice(),a:it.a,pick:it.pick}))};
+  s.draft=sanDraft(o.draft);
+  s.newDraft=sanDraft(o.newDraft);
+  if(s.newDraft&&s.newDraft.id)s.newDraft=null;
+  if(Number.isFinite(o.lastBackup))s.lastBackup=o.lastBackup;
+  if(Number.isFinite(o.firstUse))s.firstUse=o.firstUse;
+  return s;
+}
+function load(){let raw=null;try{raw=JSON.parse(localStorage.getItem(KEY))}catch(e){}S=sanitize(raw)||defState()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('保存できませんでした（空き容量を確かめてください）');return false}}
+function rebuild(){
+  P={};
+  for(const [id,a] of Object.entries(PB))P[id]={id,type:a[0],forms:a[1].split(','),m:a[2],o:a[3],base:true};
+  for(const [id,p] of Object.entries(S.parts))P[id]={id,...p,base:false};
+  W=WB.map(a=>({id:a[0],w:a[0],pos:a[1],m:a[2],segs:a[3].split('|').map(x=>{const i=x.indexOf(':');return i<0?{id:x,t:x}:{id:x.slice(0,i),t:x.slice(i+1)}}),g:a[4],ex:a[5],exj:a[6],base:true}));
+  for(const w of S.words)W.push({...w,base:false});
+  WMAP={};for(const w of W)WMAP[w.id]=w;
+}
+function statusOf(id){const p=S.prog[id];return !p?'new':p.b===0?'ng':'ok'}
+function counts(){let ok=0,ng=0,nw=0;for(const w of W){const s=statusOf(w.id);if(s==='ok')ok++;else if(s==='ng')ng++;else nw++}return {ok,ng,nw}}
+function partUsage(){const u={};for(const w of W)for(const s of w.segs){(u[s.id]||(u[s.id]=[]));if(!u[s.id].includes(w.id))u[s.id].push(w.id)}return u}
+
+/* ---------- 表示の部品 ---------- */
+function partsWord(w,focus){return `<span class="wb">${w.segs.map(s=>{const t=P[s.id]?P[s.id].type:'r';return `<span class="seg ${t}${focus&&s.id===focus?' focus':''}">${esc(s.t)}</span>`}).join('')}</span>`}
+function bigWord(w){return `<div class="word-big${w.w.length>16?' xlong':w.w.length>10?' long':''}">${partsWord(w)}</div>`}
+function hl(ex,w){
+  const e=esc(ex);
+  for(const c of [w,w.length>4?w.slice(0,-1):null]){
+    if(!c)continue;
+    const re=new RegExp('\\b('+escRe(c)+'\\w*)','i');
+    if(re.test(e))return e.replace(re,'<mark>$1</mark>');
+  }
+  return e;
+}
+function detailBody(w,link){
+  return `<div class="mean">${esc(w.m)}</div>
+  <ul class="plist">${w.segs.map(sg=>{const p=P[sg.id];const ty=p?p.type:'r';
+    return `<li><span class="chip ${ty}"${link&&p?` data-act="part" data-id="${esc(p.id)}"`:''}>${esc(sg.t)}</span><div><b>${p?esc(p.m):'？'}</b><small>${TYPE_NAME[ty]}${p&&p.o?'・'+esc(p.o):''}</small></div></li>`}).join('')}</ul>
+  ${w.g?`<p class="origin">${esc(w.g)}</p>`:''}
+  ${w.ex?`<div class="ex"><p lang="en">${hl(w.ex,w.w)}</p>${w.exj?`<p>${esc(w.exj)}</p>`:''}</div>`:''}`;
+}
+function sayBtn(w){return `<button class="say" data-act="say" data-w="${esc(w.w)}" aria-label="発音を聞く">${ICON.say}</button>`}
+const LEGEND='<div class="legend"><span><i style="background:var(--pre)"></i>接頭辞</span><span><i style="background:var(--root)"></i>語根</span><span><i style="background:var(--suf)"></i>接尾辞</span></div>';
+function statsHtml(){const c=counts();return `<div class="stats"><div><b>${c.ok}</b><span>覚えた</span></div><div><b>${c.ng}</b><span>まだ</span></div><div><b>${c.nw}</b><span>未学習</span></div></div>`}
+function needBackup(){const has=Object.keys(S.prog).length||S.words.length;return has&&Date.now()-(S.lastBackup||S.firstUse)>30*DAY}
+function backupBanner(){return needBackup()?`<div class="banner"><span class="grow">${S.lastBackup?'最後のバックアップから30日たちました。':'まだバックアップを保存していません。'}</span><button data-act="backup">保存する</button></div>`:''}
+
+/* ---------- 画面の切り替え ---------- */
+function render(){
+  for(const t of Object.keys(TITLES))$('#v-'+t).hidden=t!==S.tab;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===S.tab));
+  $('#ttl').textContent=TITLES[S.tab];
+  const c=counts();$('#tsub').textContent=`覚えた ${c.ok} / ${W.length}語`;
+  ({card:renderCard,roots:renderRoots,quiz:renderQuiz,list:renderList,set:renderSet})[S.tab]();
+  updateBadge();
+}
+function toTop(){$('#main').scrollTop=0}
+
+/* ---------- カード ---------- */
+let flipped=false;
+function buildSession(onlyNew){
+  if(S.day.date!==today())S.day={date:today(),newDone:0};
+  const now=Date.now();
+  const due=onlyNew?[]:W.filter(w=>{const p=S.prog[w.id];return p&&p.d<=now}).sort((a,b)=>S.prog[a.id].d-S.prog[b.id].d).map(w=>w.id);
+  const room=onlyNew?S.set.newPerDay:Math.max(0,S.set.newPerDay-S.day.newDone);
+  const unseen=W.filter(w=>!S.prog[w.id]);
+  const fresh=unseen.filter(w=>!w.base).concat(unseen.filter(w=>w.base)).slice(0,room).map(w=>w.id);
+  S.sess={date:today(),q:due.concat(fresh),i:0,again:[],ok:0,ng:0};
+  flipped=false;save();
+}
+function renderCard(){
+  const v=$('#v-card');
+  if(!S.sess||S.sess.date!==today())buildSession(false);
+  const s=S.sess;
+  while(s.i<s.q.length&&!WMAP[s.q[s.i]])s.i++;
+  let h=backupBanner();
+  if(s.i>=s.q.length){
+    const c=counts();
+    h+=`<div class="done"><h2>${s.q.length?'今日の分は終わりです':'今日やる単語はありません'}</h2>
+      <p class="sub">${s.q.length?`覚えた ${s.ok}回 ／ まだ ${s.ng}回`:'新しい単語を足すか、明日また開いてください。'}</p>${statsHtml()}
+      ${c.nw?`<button class="btn primary" data-act="more">新しい単語をあと${Math.min(S.set.newPerDay,c.nw)}語</button>`:''}
+      ${c.ng?`<button class="btn" data-act="retry">「まだ」の単語をもう一度（${c.ng}語）</button>`:''}
+      ${!c.nw&&!c.ng?'<p>入っている単語はすべて学習しました。</p>':''}</div>`;
+    v.innerHTML=h;return;
+  }
+  const w=WMAP[s.q[s.i]],st=statusOf(w.id);
+  const tag=st==='new'?'<span class="tag new">新しい単語</span>':st==='ng'?'<span class="tag ng">まだ</span>':'<span class="tag">復習</span>';
+  /* 塗りのボタンは「覚えた」だけ。「まだ」は灰色の地にする */
+  h+=`<div class="progress"><div style="width:${s.i/s.q.length*100}%"></div></div>${LEGEND}
+  <div class="cardbox" data-act="flip">
+    <div class="cmeta">${tag}<span>${s.i+1} / ${s.q.length}</span></div>
+    ${bigWord(w)}
+    <div class="pos">${esc(w.pos)} ${sayBtn(w)}</div>
+    ${flipped?`<div class="reveal">${detailBody(w,false)}</div>`:'<p class="hint">パーツの意味を思い出してから、タップして答えを見る</p>'}
+  </div>
+  ${flipped?'<div class="answer"><button class="btn" data-act="judge" data-v="0">まだ</button><button class="btn primary" data-act="judge" data-v="1">覚えた</button></div>':''}`;
+  v.innerHTML=h;
+}
+function judge(ok){
+  const s=S.sess,id=s.q[s.i];if(!id)return;
+  const old=S.prog[id];
+  if(!old)S.day.newDone++;
+  const p=old?{...old}:{b:0,d:0,n:0,w:0};
+  p.n++;
+  if(ok){p.b=Math.min(p.b+1,6);p.d=startOfDay()+INT[p.b]*DAY;s.ok++}
+  else{p.b=0;p.d=Date.now();p.w++;s.ng++;if(s.again.filter(x=>x===id).length<2){s.q.push(id);s.again.push(id)}}
+  S.prog[id]=p;s.i++;flipped=false;save();render();toTop();
+}
+function setStatus(id,ok){
+  const p=S.prog[id]?{...S.prog[id]}:{b:0,d:0,n:0,w:0};
+  if(ok){p.b=Math.max(1,p.b);p.d=startOfDay()+INT[p.b]*DAY}else{p.b=0;p.d=Date.now();p.w++}
+  S.prog[id]=p;
+}
+function say(t){try{const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+
+/* ---------- パーツ ---------- */
+/* 状態は色だけでなく文字でも出す（✓＝覚えた、まだ） */
+function stMark(id){const s=statusOf(id);return s==='ok'?'<span class="st ok" aria-label="覚えた">✓</span>':s==='ng'?'<span class="st ng">まだ</span>':'<span class="st"></span>'}
+function wordRow(w,focus){return `<li data-act="open" data-id="${esc(w.id)}"><span class="mini">${partsWord(w,focus)}</span><span class="wm">${esc(w.m)}</span>${stMark(w.id)}</li>`}
+function renderRoots(){
+  const v=$('#v-roots'),t=S.rootTab,u=partUsage();
+  const ids=Object.keys(u).filter(id=>P[id]&&P[id].type===t);
+  if(t==='r'){const order=[];for(const w of W)for(const s of w.segs)if(!order.includes(s.id))order.push(s.id);ids.sort((a,b)=>order.indexOf(a)-order.indexOf(b))}
+  else ids.sort((a,b)=>u[b].length-u[a].length);
+  v.innerHTML=`<div class="segc">${['r','p','s'].map(x=>`<button data-act="rtab" data-t="${x}" class="${x===t?'on':''}">${TYPE_NAME[x]}</button>`).join('')}</div>
+  <p class="gfoot" style="margin-top:10px">${TYPE_NAME[t]} ${ids.length}個。同じパーツの単語をまとめて覚えられます。</p>`+
+  ids.map(id=>{const p=P[id];return `<section class="psec" id="part-${esc(id)}"><div class="phead"><span class="chip ${p.type}">${esc(p.forms.join(' / '))}</span><div class="grow"><b>${esc(p.m)}</b>${p.o?`<small>${esc(p.o)}</small>`:''}</div><span class="cnt">${u[id].length}語</span></div><ul class="group wl">${u[id].map(wid=>wordRow(WMAP[wid],id)).join('')}</ul></section>`}).join('');
+}
+function goPart(id){
+  const p=P[id];if(!p)return;
+  closeSheet();S.tab='roots';S.rootTab=p.type;save();render();
+  const el=document.getElementById('part-'+id);
+  if(el){el.scrollIntoView({block:'start'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1200)}
+}
+
+/* ---------- クイズ ---------- */
+function quizExists(k,mode){return mode==='w'?!!WMAP[k]:!!P[k]}
+function makeQuiz(mode){
+  let qs=[];
+  if(mode==='w'){
+    let pool=W.slice();
+    if(S.set.qLearned){const lp=W.filter(w=>S.prog[w.id]);if(lp.length>=10)pool=lp}
+    const weak=shuffle(pool.filter(w=>S.prog[w.id]&&S.prog[w.id].b===0));
+    const rest=shuffle(pool.filter(w=>!(S.prog[w.id]&&S.prog[w.id].b===0)));
+    const picks=shuffle(weak.concat(rest).slice(0,10));
+    qs=picks.map(w=>{
+      const roots=new Set(w.segs.filter(s=>P[s.id]&&P[s.id].type==='r').map(s=>s.id));
+      const used=new Set([w.m]),wrong=[];
+      const take=list=>{for(const x of list){if(wrong.length>=3)break;if(x.id===w.id||used.has(x.m))continue;used.add(x.m);wrong.push(x.id)}};
+      take(shuffle(W.filter(x=>x.segs.some(s=>roots.has(s.id)))).slice(0,4));
+      if(wrong.length>2)wrong.length=2;
+      take(shuffle(W));
+      const ch=shuffle([w.id,...wrong]);
+      return {k:w.id,ch,a:ch.indexOf(w.id),pick:null};
+    });
+  }else{
+    const u=partUsage();
+    let pool=Object.keys(u).filter(id=>P[id]);
+    if(S.set.qLearned){const lp=pool.filter(id=>u[id].some(w=>S.prog[w]));if(lp.length>=10)pool=lp}
+    qs=shuffle(pool).slice(0,10).map(id=>{
+      const t=P[id].type,used=new Set([P[id].m]),wrong=[];
+      for(const x of shuffle(Object.keys(u).filter(x=>P[x]&&P[x].type===t))){if(wrong.length>=3)break;if(x===id||used.has(P[x].m))continue;used.add(P[x].m);wrong.push(x)}
+      const ch=shuffle([id,...wrong]);
+      return {k:id,ch,a:ch.indexOf(id),pick:null};
+    });
+  }
+  S.quiz={mode,qs,i:0};save();
+}
+function renderQuiz(){
+  const v=$('#v-quiz');let q=S.quiz;
+  if(q&&q.qs.some(it=>!quizExists(it.k,q.mode)||it.ch.some(c=>!quizExists(c,q.mode)))){S.quiz=q=null;save()}
+  if(!q){
+    const learned=W.filter(w=>S.prog[w.id]).length;
+    v.innerHTML=`<p class="ghead" style="margin-top:8px">10問ずつ、4つから選びます</p>
+    <div class="group">
+      <button class="cell" data-act="qstart" data-m="w"><span class="grow"><b style="font-weight:600">単語の意味を当てる</b><br><span class="sub small">パーツの意味をヒントに選ぶ</span></span>${ICON.chev}</button>
+      <button class="cell" data-act="qstart" data-m="p"><span class="grow"><b style="font-weight:600">パーツの意味を当てる</b><br><span class="sub small">接頭辞・語根・接尾辞の意味を選ぶ</span></span>${ICON.chev}</button>
+    </div>
+    <p class="ghead">出す範囲</p>
+    <div class="group"><label class="cell"><span class="grow">学習した単語から出す</span><input type="checkbox" class="switch" id="qLearned" ${S.set.qLearned?'checked':''}></label></div>
+    <p class="gfoot">${S.set.qLearned&&learned<10?`学習した単語がまだ${learned}語なので、今は全体から出します。`:''}間違えた単語は「まだ」になり、カードの復習に出てきます。</p>`;
+    v.onchange=e=>{if(e.target.id==='qLearned'){S.set.qLearned=e.target.checked;save();renderQuiz()}};
+    return;
+  }
+  v.onchange=null;
+  if(q.i>=q.qs.length){
+    const right=q.qs.filter(it=>it.pick===it.a).length;
+    const wrongs=q.qs.filter(it=>it.pick!==it.a);
+    v.innerHTML=`<div class="done"><p class="sub">${q.mode==='w'?'単語の意味':'パーツの意味'}</p><p class="score">${right} / ${q.qs.length}</p>
+    <p>${right===q.qs.length?'全問正解です。':right>=7?'あと少しで全問正解です。':'間違えたものを見直しておきましょう。'}</p>
+    </div>
+    ${wrongs.length?`<p class="ghead">間違えたもの</p><ul class="group wl">${wrongs.map(it=>q.mode==='w'?wordRow(WMAP[it.k]):`<li data-act="part" data-id="${esc(it.k)}"><span class="chip ${P[it.k].type}">${esc(P[it.k].forms[0])}</span><span class="wm">${esc(P[it.k].m)}</span></li>`).join('')}</ul>`:''}
+    <button class="btn primary mt" data-act="qstart" data-m="${q.mode}">もう一度（10問）</button><button class="btn plain" data-act="qend">クイズを終わる</button>`;
+    return;
+  }
+  const it=q.qs[q.i],answered=it.pick!==null;
+  let body='';
+  if(q.mode==='w'){
+    const w=WMAP[it.k];
+    body=`${bigWord(w)}<div class="pos">${esc(w.pos)} ${sayBtn(w)}</div>
+    <div class="hints">${w.segs.map(s=>{const p=P[s.id];return `<div><span class="chip ${p?p.type:'r'}">${esc(s.t)}</span><span>${p?esc(p.m):'？'}</span></div>`}).join('')}</div>`;
+  }else{
+    const p=P[it.k],u=partUsage()[it.k]||[];
+    const ftxt=p.forms.slice(0,3).join(' / ');
+    body=`<div class="word-big"><span class="chip qchip ${p.type}${ftxt.length>14?' long':''}">${esc(ftxt)}</span></div>
+    <div class="pos">${TYPE_NAME[p.type]}</div>
+    <div class="qex">${u.slice(0,4).map(id=>`<span class="mini">${partsWord(WMAP[id],it.k)}</span>`).join('')}</div>`;
+  }
+  const label=c=>q.mode==='w'?WMAP[c].m:P[c].m;
+  const choices=it.ch.map((c,i)=>{
+    let cls='choice cell',mk='';
+    if(answered){if(i===it.a){cls+=' right';mk='<span class="mk">✓ 正解</span>'}else if(i===it.pick){cls+=' wrong';mk='<span class="mk">✕</span>'}}
+    return `<button class="${cls}" data-act="qpick" data-i="${i}" ${answered?'disabled':''}><span class="grow">${esc(label(c))}</span>${mk}</button>`;
+  }).join('');
+  let after='';
+  if(answered){
+    if(q.mode==='w'){const w=WMAP[it.k];after=`<div class="reveal">${w.g?`<p class="origin">${esc(w.g)}</p>`:''}${w.ex?`<div class="ex"><p lang="en">${hl(w.ex,w.w)}</p>${w.exj?`<p>${esc(w.exj)}</p>`:''}</div>`:''}</div>`}
+    else{const p=P[it.k],u=partUsage()[it.k]||[];after=`<div class="reveal">${p.o?`<p class="origin">${esc(p.o)}</p>`:''}<ul class="group wl mt">${u.slice(0,4).map(id=>wordRow(WMAP[id],it.k)).join('')}</ul></div>`}
+  }
+  v.innerHTML=`<div class="qhead"><span>${q.mode==='w'?'単語の意味':'パーツの意味'}</span><span>${q.i+1} / ${q.qs.length}</span></div>
+  <div class="progress"><div style="width:${q.i/q.qs.length*100}%"></div></div>
+  <div class="qcard">${body}</div><div class="group choices">${choices}</div>${after}
+  ${answered?`<div class="answer" style="grid-template-columns:1fr"><button class="btn primary" data-act="qnext">${q.i+1<q.qs.length?'次へ':'結果を見る'}</button></div>`:''}`;
+}
+
+/* ---------- 単語一覧 ---------- */
+let listQ='',listF='all';
+function renderList(){
+  const v=$('#v-list');
+  if(!v.dataset.ready){
+    v.innerHTML=`<div class="searchrow"><input id="q" type="search" placeholder="単語・意味で探す" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button class="btn primary small" data-act="add">＋追加</button></div>
+    <div class="filters" id="filters"></div><p class="ghead" style="margin-top:6px" id="listCount"></p><ul class="group wl" id="listRows"></ul>`;
+    v.dataset.ready='1';
+    $('#q').oninput=e=>{listQ=e.target.value;renderRows()};
+  }
+  renderRows();
+}
+function renderRows(){
+  const F=[['all','すべて'],['new','未学習'],['ng','まだ'],['ok','覚えた'],['mine','追加した単語']];
+  $('#filters').innerHTML=F.map(([k,n])=>`<button data-act="filter" data-f="${k}" class="${k===listF?'on':''}"><span>${n}</span></button>`).join('');
+  const q=listQ.trim().toLowerCase();
+  const rows=W.filter(w=>{
+    if(listF==='mine'&&w.base)return false;
+    if(['new','ng','ok'].includes(listF)&&statusOf(w.id)!==listF)return false;
+    return !q||w.w.toLowerCase().includes(q)||w.m.includes(q);
+  });
+  $('#listCount').textContent=`${rows.length}語`;
+  $('#listRows').innerHTML=rows.map(w=>wordRow(w)).join('')||'<li class="sub" style="cursor:default">見つかりませんでした</li>';
+}
+
+/* ---------- シート ---------- */
+function openSheet(html){const sh=$('#sheet');sh.oninput=null;sh.innerHTML=html;$('#sheetWrap').hidden=false;sh.scrollTop=0}
+function closeSheet(){$('#sheetWrap').hidden=true;const sh=$('#sheet');sh.oninput=null;sh.innerHTML=''}
+/* シートの上の帯：左に「閉じる」、中央に題名、右に操作 */
+function sheetHead(left,title,right){return `<div class="sh-head"><span class="l">${left}</span><h2>${title}</h2><span class="r">${right||''}</span></div>`}
+function openWord(id){
+  const w=WMAP[id];if(!w)return;const st=statusOf(id);
+  openSheet(`${sheetHead('<button class="x" data-act="close">閉じる</button>',`<span class="tag ${st}">${ST_NAME[st]}</span>`,w.base?'':`<button class="x" data-act="edit" data-id="${esc(id)}">編集</button>`)}
+  ${bigWord(w)}<div class="pos">${esc(w.pos)} ${sayBtn(w)}</div>
+  ${detailBody(w,true)}
+  <p class="gfoot" style="margin:10px 0 0">色の付いたパーツをタップすると、同じパーツの単語を見られます。</p>
+  <div class="group mt">
+    <button class="cell link" data-act="mark" data-id="${esc(id)}" data-v="1">「覚えた」にする</button>
+    <button class="cell link" data-act="mark" data-id="${esc(id)}" data-v="0">「まだ」にする</button>
+  </div>
+  ${w.base?'':`<div class="group mt"><button class="cell red" data-act="del" data-id="${esc(id)}">この単語を削除</button></div>`}`);
+}
+
+/* ---------- 単語の追加 ---------- */
+function segsOf(split){return split.split('/').map(s=>s.trim()).filter(Boolean)}
+function candidates(t){
+  const l=t.toLowerCase();
+  return Object.values(P).filter(p=>p.forms.includes(l));
+}
+function suggest(word){
+  const s=word.toLowerCase().replace(/[^a-z]/g,'');const n=s.length;if(!n)return '';
+  const forms=[];for(const p of Object.values(P))for(const f of p.forms)forms.push({f,t:p.type});
+  const best=Array(n+1).fill(null);best[0]={c:0,prev:-1};
+  const relax=(i,j,c)=>{const c2=best[i].c+c;if(!best[j]||c2<best[j].c)best[j]={c:c2,prev:i}};
+  for(let i=0;i<n;i++){
+    if(!best[i])continue;
+    for(const {f,t} of forms){
+      if(!s.startsWith(f,i))continue;
+      const j=i+f.length;let c=1;
+      if(f.length===1)c+=.8;
+      if(t==='p'&&i!==0)c+=.6;
+      if(t==='s'&&j!==n)c+=1.2;
+      if(t==='r')c-=.3+.02*f.length; /* 同点なら長い語根（spect＞spec）を選ぶ */
+      relax(i,j,c);
+    }
+    for(let j=i+1;j<=n;j++)relax(i,j,2.2+.4*(j-i));
+  }
+  const cuts=[];let j=n;while(j>0){cuts.unshift(j);j=best[j].prev}
+  let out=[],a=0;for(const c of cuts){out.push(s.slice(a,c));a=c}
+  return out.join('/');
+}
+function openEdit(id){
+  if(id){
+    const w=WMAP[id];if(!w)return;
+    /* 追加の途中の下書きは、編集のあいだ別に取っておく */
+    if(S.draft&&!S.draft.id)S.newDraft=S.draft;
+    S.draft={...blankDraft(),id,w:w.w,pos:w.pos,m:w.m,split:w.segs.map(s=>s.t).join('/'),touched:true,g:w.g||'',ex:w.ex||'',exj:w.exj||'',
+      sel:Object.fromEntries(w.segs.map((s,i)=>[i+':'+s.t.toLowerCase(),{pid:s.id,nm:'',nt:P[s.id]?P[s.id].type:'r'}]))};
+  }else if(!S.draft||S.draft.id){S.draft=S.newDraft||blankDraft();S.newDraft=null}
+  save();
+  const d=S.draft;
+  openSheet(`${sheetHead('<button class="x" data-act="close">閉じる</button>',d.id?'単語を直す':'単語を追加','<button class="x" data-act="saveWord">保存</button>')}
+  <label class="field"><span>英単語</span><input id="f-w" value="${esc(d.w)}" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"></label>
+  <div class="row2"><label class="field" style="flex:0 0 110px"><span>品詞</span><select id="f-pos">${POS.map(p=>`<option ${p===d.pos?'selected':''}>${p}</option>`).join('')}</select></label>
+  <label class="field"><span>意味</span><input id="f-m" value="${esc(d.m)}"></label></div>
+  <label class="field"><span>区切り（/ で分ける）</span><input id="f-split" value="${esc(d.split)}" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"></label>
+  <p class="gfoot">英単語を入れると、アプリにあるパーツから区切りの候補を出します。違っていたら直してください。</p>
+  <div id="segRows"></div>
+  <label class="field"><span>成り立ち（なくてもよい）</span><input id="f-g" value="${esc(d.g)}" placeholder="例：中を見る → 詳しく調べる"></label>
+  <label class="field"><span>例文（なくてもよい）</span><textarea id="f-ex" rows="2" autocorrect="off" spellcheck="false">${esc(d.ex)}</textarea></label>
+  <label class="field"><span>例文の訳（なくてもよい）</span><textarea id="f-exj" rows="2">${esc(d.exj)}</textarea></label>
+  <p class="err" id="f-err" hidden></p>
+  <button class="btn primary mt" data-act="saveWord">保存</button>
+  ${d.id?'':'<button class="btn plain danger" data-act="clearDraft">入力を消す</button>'}`);
+  renderSegRows();
+  $('#sheet').oninput=onEditInput;
+}
+function onEditInput(e){
+  const t=e.target,d=S.draft;if(!d)return;
+  const fe=$('#f-err');if(fe)fe.hidden=true;
+  if(t.id==='f-w'){d.w=t.value.trim();if(!d.touched){d.split=suggest(d.w);$('#f-split').value=d.split;renderSegRows()}}
+  else if(t.id==='f-split'){d.split=t.value;d.touched=t.value.trim()!=='';renderSegRows()}
+  else if(t.id==='f-m')d.m=t.value;
+  else if(t.id==='f-pos')d.pos=t.value;
+  else if(t.id==='f-g')d.g=t.value;
+  else if(t.id==='f-ex')d.ex=t.value;
+  else if(t.id==='f-exj')d.exj=t.value;
+  else if(t.dataset.seg!=null){
+    const s=d.sel[t.dataset.seg]||(d.sel[t.dataset.seg]={pid:'new',nm:'',nt:'r'});
+    s[t.dataset.f]=t.value;
+    if(t.dataset.f!=='nm')renderSegRows();
+  }
+  save();
+}
+function renderSegRows(){
+  const d=S.draft,segs=segsOf(d.split),n=segs.length;
+  $('#segRows').innerHTML=segs.map((t,i)=>{
+    const key=i+':'+t.toLowerCase(),cands=candidates(t);
+    const want=n===1?'r':i===0?'p':i===n-1?'s':'r';
+    let s=d.sel[key];
+    if(!s||!s.pid||(s.pid!=='new'&&!P[s.pid])){const pick=cands.find(p=>p.type===want)||cands[0];s=d.sel[key]={pid:pick?pick.id:'new',nm:s?s.nm||'':'',nt:s&&s.nt?s.nt:want}}
+    const ty=s.pid==='new'?s.nt:P[s.pid].type;
+    return `<div class="segrow"><span class="chip ${ty}">${esc(t)}</span><div class="grow">
+    <select data-seg="${esc(key)}" data-f="pid" aria-label="${esc(t)} の意味">${cands.map(c=>`<option value="${esc(c.id)}" ${c.id===s.pid?'selected':''}>${TYPE_NAME[c.type]}：${esc(c.m)}</option>`).join('')}<option value="new" ${s.pid==='new'?'selected':''}>新しいパーツとして入れる</option></select>
+    ${s.pid==='new'?`<div class="row2"><select data-seg="${esc(key)}" data-f="nt" style="flex:0 0 110px">${['p','r','s'].map(x=>`<option value="${x}" ${x===s.nt?'selected':''}>${TYPE_NAME[x]}</option>`).join('')}</select><input data-seg="${esc(key)}" data-f="nm" value="${esc(s.nm||'')}" placeholder="パーツの意味"></div>`:''}
+    </div></div>`;
+  }).join('')||'<p class="sub small">区切りはまだありません。</p>';
+}
+function saveWord(){
+  const d=S.draft;if(!d)return;
+  const err=m=>{const e=$('#f-err');e.textContent=m;e.hidden=false;e.scrollIntoView({block:'center'})};
+  const w=(d.w||'').trim();
+  if(!/^[A-Za-z][A-Za-z'-]*$/.test(w))return err('英単語を半角の英字で入れてください（空白なし）');
+  if(!d.m.trim())return err('意味を入れてください');
+  if(W.some(x=>x.w.toLowerCase()===w.toLowerCase()&&x.id!==d.id))return err(`「${w}」はもう入っています`);
+  const segs=segsOf(d.split);
+  if(segs.join('').toLowerCase()!==w.toLowerCase())return err('区切りをつなげたときに、英単語と同じ綴りになるようにしてください');
+  const out=[],newParts={};let pos=0;
+  for(let i=0;i<segs.length;i++){
+    const t=segs[i],s=d.sel[i+':'+t.toLowerCase()]||{};let pid=s.pid;
+    if(!pid||pid==='new'){
+      const nm=(s.nm||'').trim();if(!nm)return err(`「${t}」の意味を入れてください`);
+      const nt=['p','r','s'].includes(s.nt)?s.nt:'r',f=t.toLowerCase();
+      const same=([k,p])=>p.type===nt&&p.m===nm&&p.forms.includes(f);
+      const found=Object.entries(S.parts).find(same)||Object.entries(newParts).find(same);
+      if(found)pid=found[0];else{pid='u_'+Date.now().toString(36)+i;newParts[pid]={type:nt,forms:[f],m:nm,o:''}}
+    }else if(!P[pid])return err(`「${t}」のパーツを選び直してください`);
+    out.push({id:pid,t:w.slice(pos,pos+t.length)});pos+=t.length;
+  }
+  Object.assign(S.parts,newParts);
+  const rec={id:d.id||'c_'+Date.now().toString(36),w,pos:d.pos,m:d.m.trim(),segs:out,g:d.g.trim(),ex:d.ex.trim(),exj:d.exj.trim()};
+  const idx=S.words.findIndex(x=>x.id===rec.id);
+  if(idx>=0)S.words[idx]=rec;else S.words.push(rec);
+  const edited=!!d.id;
+  if(edited){S.draft=S.newDraft||null;S.newDraft=null}else S.draft=null;
+  rebuild();save();closeSheet();render();toast(edited?'直しました':`「${w}」を追加しました`);
+}
+function delWord(id){
+  /* 元に戻せる削除なので確認は出さず、すぐ消して「元に戻す」を出す */
+  const w=S.words.find(x=>x.id===id);if(!w)return;
+  const pr=S.prog[id];
+  S.words=S.words.filter(x=>x.id!==id);delete S.prog[id];
+  if(S.quiz&&S.quiz.mode==='w'&&S.quiz.qs.some(it=>it.k===id||it.ch.includes(id)))S.quiz=null;
+  rebuild();save();closeSheet();render();
+  toast(`「${w.w}」を削除しました`,()=>{if(!S.words.some(x=>x.id===id))S.words.push(w);if(pr&&!S.prog[id])S.prog[id]=pr;rebuild();save();render()});
+}
+
+/* ---------- 設定・バックアップ ---------- */
+function fmtDate(t){const d=new Date(t);return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`}
+function renderSet(){
+  const v=$('#v-set');
+  const c=counts();
+  v.innerHTML=`${backupBanner()}
+  <p class="ghead" style="margin-top:8px">1日に出す新しい単語</p>
+  <div class="group" style="padding:8px"><div class="opts">${[5,10,15,20].map(n=>`<button data-act="newPer" data-v="${n}" class="${n===S.set.newPerDay?'on':''}">${n}語</button>`).join('')}</div></div>
+  <p class="gfoot">覚えた単語は、1日後・3日後・7日後・14日後・30日後・60日後と、間をあけて復習に出てきます。「まだ」にした単語はその日のうちにもう一度出ます。</p>
+  <p class="ghead">毎晩9時のお知らせ</p>
+  <div class="group">
+    <div class="cell"><span class="grow">今日の残りの復習</span><span class="sub">${dueBy(Date.now())}語</span></div>
+    <div class="cell"><span class="grow">明日の復習（今日の残りを含む）</span><span class="sub">${dueBy(startOfDay()+2*DAY-1)}語</span></div>
+    <button class="cell link" data-act="notifyHelp"><span class="grow">ショートカットで通知を設定する</span>${ICON.chev}</button>
+    <label class="cell"><span class="grow">アイコンに復習の数を出す</span><input type="checkbox" class="switch" id="badgeSw" ${S.set.badge?'checked':''}></label>
+  </div>
+  <p class="gfoot">通知は iPhone の「ショートカット」アプリから毎晩9時に出します。アイコンの数字は、このアプリを開いたときと閉じたときに新しくなります。</p>
+  <p class="ghead">学習の記録</p>
+  <div class="group">
+    <div class="cell"><span class="grow">覚えた</span><span class="sub">${c.ok}語</span></div>
+    <div class="cell"><span class="grow">まだ</span><span class="sub">${c.ng}語</span></div>
+    <div class="cell"><span class="grow">未学習</span><span class="sub">${c.nw}語</span></div>
+    <div class="cell"><span class="grow">自分で追加した単語</span><span class="sub">${S.words.length}語</span></div>
+  </div>
+  <p class="ghead">バックアップ</p>
+  <div class="group">
+    <button class="cell link" data-act="backup">バックアップを保存</button>
+    <button class="cell link" data-act="restore">バックアップから戻す</button>
+  </div>
+  <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+  <p class="gfoot">${S.lastBackup?`最後に保存：${fmtDate(S.lastBackup)}。`:'まだ保存していません。'}データはこの iPhone の中だけにあります。ホーム画面のアイコンを消すとデータも消えるので、ときどき保存してください。</p>
+  <div class="group" style="margin-top:28px"><button class="cell red" data-act="reset">学習の記録を消す</button></div>
+  <p class="gfoot">追加した単語は消えません。</p>`;
+  $('#restoreFile').onchange=restoreFrom;
+  $('#badgeSw').onchange=e=>toggleBadge(e.target.checked,e.target);
+}
+
+/* ---------- 毎晩のお知らせ・アイコンの数字 ---------- */
+function dueBy(t){return W.filter(w=>{const p=S.prog[w.id];return p&&p.d<=t}).length}
+function updateBadge(){
+  if(!S.set.badge||!('setAppBadge' in navigator))return;
+  const n=dueBy(Date.now());
+  try{const r=n?navigator.setAppBadge(n):navigator.clearAppBadge();if(r&&r.catch)r.catch(()=>{})}catch(e){}
+}
+async function toggleBadge(on,el){
+  if(!on){S.set.badge=false;save();try{const r=navigator.clearAppBadge&&navigator.clearAppBadge();if(r&&r.catch)r.catch(()=>{})}catch(e){}return}
+  if(!('setAppBadge' in navigator)||!('Notification' in window)){el.checked=false;toast('ここではアイコンの数字を使えません。ホーム画面のアイコンから開いてください');return}
+  let p=Notification.permission;
+  if(p==='default'){try{p=await Notification.requestPermission()}catch(e){}}
+  if(p!=='granted'){el.checked=false;toast('通知が許可されていないため、数字を出せません。iPhone の「設定」→「通知」から許可できます');return}
+  S.set.badge=true;save();updateBadge();toast('アイコンに復習の数を出します');
+}
+const NOTIFY_TEXT='単語帳の復習の時間です';
+function openNotifyHelp(){
+  const steps=[
+    'iPhone の「ショートカット」アプリを開き、下の「オートメーション」をタップします。',
+    '右上の「＋」（はじめてのときは「新規オートメーション」）をタップし、「時刻」を選びます。',
+    '時刻を「21:00」、繰り返しを「毎日」にします。「すぐに実行」を選んで「次へ」をタップします。',
+    '「新規の空のオートメーション」をタップし、「アクションを追加」で「通知を表示」を探して入れます。',
+    `通知の文を「${NOTIFY_TEXT}」に書き換えて「完了」をタップします。`
+  ];
+  openSheet(`${sheetHead('<button class="x" data-act="close">閉じる</button>','通知の設定','')}
+  <p class="gfoot" style="margin:6px 4px 0">一度設定すると、毎晩9時に iPhone に通知が届きます。</p>
+  <ol class="group steps">${steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+  <div class="group mt"><button class="cell link" data-act="copyNotify">通知の文をコピー</button></div>
+  <p class="gfoot">通知をタップすると「ショートカット」アプリが開きます。単語帳は、ホーム画面のアイコンから開いてください。Safari で開くと、学習の記録が別になります。</p>
+  <p class="gfoot">画面の名前は、iOS の版によって少し違うことがあります。</p>`);
+}
+async function doBackup(){
+  const data=JSON.stringify({app:'parts-wordbook',v:1,at:Date.now(),state:{...S,draft:null,newDraft:null}});
+  const d=new Date(),name=`parts-wordbook-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  const file=new File([data],name,{type:'application/json'});
+  const done=()=>{S.lastBackup=Date.now();save();render();toast('バックアップを保存しました')};
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'単語帳のバックアップ'});done();return}}
+  catch(e){if(e&&e.name==='AbortError')return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;document.body.append(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);done();
+}
+function restoreFrom(e){
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    let o=null;try{o=JSON.parse(r.result)}catch(x){}
+    const s=o&&o.app==='parts-wordbook'?sanitize(o.state):null;
+    if(!s){toast('このファイルは単語帳のバックアップではないようです');return}
+    actionSheet('今のデータを、バックアップの内容に置き換えます。','置き換える',()=>{
+      s.lastBackup=Math.max(s.lastBackup||0,o.at||0);s.tab='set';
+      S=s;rebuild();flipped=false;save();render();toast('バックアップから戻しました');
+    });
+  };
+  r.readAsText(f);
+}
+function resetProgress(){
+  actionSheet('「覚えた」「まだ」の記録をすべて消します。追加した単語は残ります。','学習の記録を消す',()=>{
+    const snap=S.prog;S.prog={};S.sess=null;S.quiz=null;S.day={date:today(),newDone:0};save();render();
+    toast('学習の記録を消しました',()=>{for(const [k,v] of Object.entries(snap))if(!S.prog[k])S.prog[k]=v;S.sess=null;save();render()});
+  });
+}
+/* 確認のアクションシート：危険な選択は赤で上、キャンセルは下に離す */
+let actOk=null;
+function actionSheet(title,okLabel,onOk){
+  actOk=onOk;
+  $('#acts').innerHTML=`<div class="group"><div class="atitle">${esc(title)}</div><button class="cell red" data-act="actOk">${esc(okLabel)}</button></div><div class="group cancel"><button class="cell" data-act="actCancel" style="color:var(--accent);font-weight:600">キャンセル</button></div>`;
+  $('#actWrap').hidden=false;
+}
+function closeActs(){$('#actWrap').hidden=true;$('#acts').innerHTML='';actOk=null}
+
+/* ---------- お知らせ ---------- */
+let toastT=null,toastUndo=null;
+function toast(msg,undo){
+  const t=$('#toast');
+  t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button data-act="undo">元に戻す</button>':''}`;
+  t.hidden=false;toastUndo=undo||null;clearTimeout(toastT);
+  toastT=setTimeout(()=>{t.hidden=true;toastUndo=null},undo?6000:2200);
+}
+
+/* ---------- 操作 ---------- */
+const ACT={
+  tab:el=>{if(S.tab===el.dataset.t){toTop();return}S.tab=el.dataset.t;save();render();toTop()},
+  flip:()=>{if(!flipped){flipped=true;renderCard()}},
+  say:el=>say(el.dataset.w),
+  judge:el=>judge(el.dataset.v==='1'),
+  more:()=>{buildSession(true);render();toTop()},
+  retry:()=>{buildSession(false);render();toTop()},
+  rtab:el=>{S.rootTab=el.dataset.t;save();renderRoots();toTop()},
+  part:el=>goPart(el.dataset.id),
+  open:el=>openWord(el.dataset.id),
+  close:()=>closeSheet(),
+  mark:el=>{setStatus(el.dataset.id,el.dataset.v==='1');save();render();openWord(el.dataset.id);toast(el.dataset.v==='1'?'「覚えた」にしました':'「まだ」にしました')},
+  add:()=>openEdit(null),
+  edit:el=>openEdit(el.dataset.id),
+  del:el=>delWord(el.dataset.id),
+  saveWord:()=>saveWord(),
+  clearDraft:()=>{S.draft=blankDraft();save();openEdit(null)},
+  filter:el=>{listF=el.dataset.f;renderRows()},
+  qstart:el=>{makeQuiz(el.dataset.m);render();toTop()},
+  qpick:el=>{
+    const q=S.quiz,it=q&&q.qs[q.i];if(!it||it.pick!==null)return;
+    it.pick=+el.dataset.i;
+    if(it.pick!==it.a&&q.mode==='w')setStatus(it.k,false);
+    save();renderQuiz();
+  },
+  qnext:()=>{if(!S.quiz)return;S.quiz.i++;save();renderQuiz();toTop()},
+  qend:()=>{S.quiz=null;save();renderQuiz();toTop()},
+  newPer:el=>{S.set.newPerDay=+el.dataset.v;save();renderSet()},
+  backup:()=>doBackup(),
+  restore:()=>$('#restoreFile')?$('#restoreFile').click():(S.tab='set',render(),$('#restoreFile').click()),
+  reset:()=>resetProgress(),
+  notifyHelp:()=>openNotifyHelp(),
+  copyNotify:()=>{try{navigator.clipboard.writeText(NOTIFY_TEXT).then(()=>toast('コピーしました'),()=>toast(`「${NOTIFY_TEXT}」と入れてください`))}catch(e){toast(`「${NOTIFY_TEXT}」と入れてください`)}},
+  actOk:()=>{const f=actOk;closeActs();if(f)f()},
+  actCancel:()=>closeActs(),
+  undo:()=>{const f=toastUndo;toastUndo=null;$('#toast').hidden=true;if(f)f()},
+};
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
+  const f=ACT[el.dataset.act];if(f)f(el,e);
+});
+
+load();rebuild();
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+render();
+/* 閉じたまま日をまたいでも、開き直したときにその日の分を作り直す。閉じるときはアイコンの数字を新しくする */
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){if($('#sheetWrap').hidden&&$('#actWrap').hidden)render();else updateBadge()}
+  else updateBadge();
+});
+</script>
+
+<script>
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
